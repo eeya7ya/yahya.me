@@ -1,19 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Lang, Dict } from "@/lib/i18n";
+import { dict } from "@/lib/i18n";
+import { useLang } from "@/components/LangProvider";
 import type { SiteContent } from "@/lib/settings";
 
-export default function Contact({
-  lang,
-  t,
-  content,
-}: {
-  lang: Lang;
-  t: Dict[Lang];
-  content: SiteContent;
-}) {
+export default function ContactFull({ content }: { content: SiteContent }) {
+  const lang = useLang();
   const c = content.contact;
+  const t = dict[lang];
   const title = lang === "ar" ? c.titleAr : c.titleEn;
   const subtitle = lang === "ar" ? c.subtitleAr : c.subtitleEn;
 
@@ -24,7 +19,7 @@ export default function Contact({
   ];
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-8 md:px-16 text-center">
+    <section className="max-w-3xl mx-auto px-6 md:px-10 py-20 md:py-28 text-center">
       <motion.span
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -63,6 +58,6 @@ export default function Contact({
           </a>
         ))}
       </motion.div>
-    </div>
+    </section>
   );
 }

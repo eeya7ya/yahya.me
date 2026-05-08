@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Lang, Dict } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n";
 import type { AchievementRow } from "@/lib/schema";
+import type { SiteContent } from "@/lib/settings";
 
 const ICONS: Record<string, string> = {
   trophy: "🏆",
@@ -11,7 +12,19 @@ const ICONS: Record<string, string> = {
   spark: "✦",
 };
 
-export default function Achievements({ lang, t, items }: { lang: Lang; t: Dict[Lang]; items: AchievementRow[] }) {
+export default function Achievements({
+  lang,
+  content,
+  items,
+}: {
+  lang: Lang;
+  content: SiteContent;
+  items: AchievementRow[];
+}) {
+  const a = content.achievements;
+  const title = lang === "ar" ? a.titleAr : a.titleEn;
+  const subtitle = lang === "ar" ? a.subtitleAr : a.subtitleEn;
+
   return (
     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center justify-start md:justify-center px-6 md:px-16 py-24">
       <div className="w-full max-w-6xl">
@@ -22,9 +35,9 @@ export default function Achievements({ lang, t, items }: { lang: Lang; t: Dict[L
           className="mb-12 text-center"
         >
           <span className="text-xs tracking-[0.3em] uppercase text-[var(--color-orange-600)]">
-            {t.achievements.subtitle}
+            {subtitle}
           </span>
-          <h2 className="mt-2 text-4xl md:text-5xl font-bold text-[var(--color-ink)]">{t.achievements.title}</h2>
+          <h2 className="mt-2 text-4xl md:text-5xl font-bold text-[var(--color-ink)]">{title}</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">

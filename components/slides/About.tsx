@@ -1,9 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Lang, Dict } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n";
+import type { SiteContent } from "@/lib/settings";
 
-export default function About({ t }: { lang: Lang; t: Dict[Lang] }) {
+export default function About({ lang, content }: { lang: Lang; content: SiteContent }) {
+  const a = content.about;
+  const title = lang === "ar" ? a.titleAr : a.titleEn;
+  const body = lang === "ar" ? a.bodyAr : a.bodyEn;
+  const values = lang === "ar" ? a.valuesAr : a.valuesEn;
+
   return (
     <div className="absolute inset-0 flex items-center justify-center px-8 md:px-16">
       <div className="max-w-3xl">
@@ -13,7 +19,7 @@ export default function About({ t }: { lang: Lang; t: Dict[Lang] }) {
           transition={{ duration: 0.5 }}
           className="text-xs tracking-[0.3em] uppercase text-[var(--color-orange-600)]"
         >
-          {t.about.title}
+          {title}
         </motion.span>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -21,7 +27,7 @@ export default function About({ t }: { lang: Lang; t: Dict[Lang] }) {
           transition={{ delay: 0.15, duration: 0.6 }}
           className="mt-6 text-2xl md:text-4xl leading-relaxed text-[var(--color-ink)]"
         >
-          {t.about.body}
+          {body}
         </motion.p>
 
         <motion.ul
@@ -30,7 +36,7 @@ export default function About({ t }: { lang: Lang; t: Dict[Lang] }) {
           transition={{ delay: 0.45, duration: 0.6 }}
           className="mt-12 flex flex-wrap gap-3"
         >
-          {t.about.values.map((v) => (
+          {values.map((v) => (
             <li
               key={v}
               className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 px-5 py-2 text-sm font-medium text-[var(--color-orange-600)]"

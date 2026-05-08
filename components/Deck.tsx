@@ -9,9 +9,10 @@ import Roadmap from "./slides/Roadmap";
 import Achievements from "./slides/Achievements";
 import Contact from "./slides/Contact";
 import type { RoadmapRow, AchievementRow } from "@/lib/schema";
+import type { SiteContent } from "@/lib/settings";
 
 type Props = {
-  photoUrl: string;
+  content: SiteContent;
   roadmap: RoadmapRow[];
   achievements: AchievementRow[];
 };
@@ -19,7 +20,7 @@ type Props = {
 const WHEEL_LOCK_MS = 700;
 const TOUCH_THRESHOLD = 50;
 
-export default function Deck({ photoUrl, roadmap, achievements }: Props) {
+export default function Deck({ content, roadmap, achievements }: Props) {
   const [lang, setLang] = useState<Lang>("ar");
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -28,11 +29,11 @@ export default function Deck({ photoUrl, roadmap, achievements }: Props) {
   const t = dict[lang];
 
   const slides: ReactNode[] = [
-    <Hero key="hero" lang={lang} t={t} photoUrl={photoUrl} onNext={() => go(1)} />,
-    <About key="about" lang={lang} t={t} />,
-    <Roadmap key="roadmap" lang={lang} t={t} items={roadmap} />,
-    <Achievements key="ach" lang={lang} t={t} items={achievements} />,
-    <Contact key="contact" lang={lang} t={t} />,
+    <Hero key="hero" lang={lang} t={t} content={content} onNext={() => go(1)} />,
+    <About key="about" lang={lang} content={content} />,
+    <Roadmap key="roadmap" lang={lang} content={content} items={roadmap} />,
+    <Achievements key="ach" lang={lang} content={content} items={achievements} />,
+    <Contact key="contact" lang={lang} t={t} content={content} />,
   ];
 
   const go = useCallback(
@@ -56,6 +57,13 @@ export default function Deck({ photoUrl, roadmap, achievements }: Props) {
     html.lang = lang;
     html.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
+
+  // lock viewport scroll only while the deck is mounted
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.add("deck-locked");
+    return () => html.classList.remove("deck-locked");
+  }, []);
 
   // wheel + keyboard navigation
   useEffect(() => {

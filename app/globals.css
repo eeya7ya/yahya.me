@@ -19,6 +19,10 @@ html, body {
   height: 100%;
   background: var(--color-cream);
   color: var(--color-ink);
+}
+
+/* Applied only on the slide-deck route so other pages can scroll */
+html.deck-locked, html.deck-locked body {
   overflow: hidden;
   overscroll-behavior: none;
 }
