@@ -21,10 +21,39 @@ export default function Hero({ lang, t, content, onNext }: Props) {
   const cta = lang === "ar" ? h.ctaAr : h.ctaEn;
   void t;
 
+  const isRtl = lang === "ar";
+
   return (
-    <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-[1.3fr_1.1fr]">
-      {/* Left side — name + tagline */}
-      <div className="flex flex-col justify-center px-8 md:px-16 lg:px-24 py-20">
+    <div className="absolute inset-0">
+      {/* Photo — full-bleed background layer, sits BEHIND the orange UI */}
+      <motion.div
+        aria-hidden
+        initial={{ scale: 1.04, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+        className={`absolute inset-y-0 ${isRtl ? "left-0" : "right-0"} w-full md:w-[58%] lg:w-[52%] z-0 pointer-events-none`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photoUrl}
+          alt={name}
+          className="h-full w-full object-contain object-bottom"
+          style={{
+            mixBlendMode: "multiply",
+            WebkitMaskImage: isRtl
+              ? "linear-gradient(to right, transparent 0%, black 22%, black 100%)"
+              : "linear-gradient(to left, transparent 0%, black 22%, black 100%)",
+            maskImage: isRtl
+              ? "linear-gradient(to right, transparent 0%, black 22%, black 100%)"
+              : "linear-gradient(to left, transparent 0%, black 22%, black 100%)",
+          }}
+          loading="eager"
+        />
+        <div className="absolute inset-0 photo-veil" />
+      </motion.div>
+
+      {/* Orange UI — name + tagline, sits ABOVE the photo */}
+      <div className="relative z-10 flex h-full flex-col justify-center px-8 md:px-16 lg:px-24 py-20 md:max-w-[60%]">
         <motion.span
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -74,34 +103,6 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           <span>{cta}</span>
           <span className="inline-block transition-transform group-hover:translate-y-0.5">↓</span>
         </motion.button>
-      </div>
-
-      {/* Right side — photo blended into the cream, behind a colorless cover */}
-      <div className="relative h-full min-h-[35vh] md:min-h-0 flex items-center justify-center p-2 md:p-4 lg:p-6">
-        <motion.div
-          initial={{ scale: 1.04, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative h-full w-full max-h-[92vh] max-w-[36rem]"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photoUrl}
-            alt={name}
-            className="h-full w-full object-contain object-center"
-            style={{ mixBlendMode: "multiply" }}
-            loading="eager"
-          />
-          <div className="absolute inset-0 photo-veil pointer-events-none" />
-          <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to left, rgba(255,244,230,0.0) 0%, rgba(255,244,230,0.14) 80%, rgba(255,250,243,0.34) 100%)",
-            }}
-          />
-        </motion.div>
       </div>
     </div>
   );
