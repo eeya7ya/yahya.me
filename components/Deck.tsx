@@ -21,7 +21,7 @@ const WHEEL_LOCK_MS = 700;
 const TOUCH_THRESHOLD = 50;
 
 export default function Deck({ content, roadmap, achievements }: Props) {
-  const [lang, setLang] = useState<Lang>("ar");
+  const [lang, setLang] = useState<Lang>("en");
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const lockRef = useRef(false);
