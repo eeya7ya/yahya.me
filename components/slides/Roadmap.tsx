@@ -1,10 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Lang, Dict } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n";
 import type { RoadmapRow } from "@/lib/schema";
+import type { SiteContent } from "@/lib/settings";
 
-export default function Roadmap({ lang, t, items }: { lang: Lang; t: Dict[Lang]; items: RoadmapRow[] }) {
+export default function Roadmap({
+  lang,
+  content,
+  items,
+}: {
+  lang: Lang;
+  content: SiteContent;
+  items: RoadmapRow[];
+}) {
+  const r = content.roadmap;
+  const title = lang === "ar" ? r.titleAr : r.titleEn;
+  const subtitle = lang === "ar" ? r.subtitleAr : r.subtitleEn;
+
   return (
     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center justify-start md:justify-center px-6 md:px-16 py-24">
       <div className="w-full max-w-5xl">
@@ -15,9 +28,9 @@ export default function Roadmap({ lang, t, items }: { lang: Lang; t: Dict[Lang];
           className="mb-12 text-center"
         >
           <span className="text-xs tracking-[0.3em] uppercase text-[var(--color-orange-600)]">
-            {t.roadmap.subtitle}
+            {subtitle}
           </span>
-          <h2 className="mt-2 text-4xl md:text-5xl font-bold text-[var(--color-ink)]">{t.roadmap.title}</h2>
+          <h2 className="mt-2 text-4xl md:text-5xl font-bold text-[var(--color-ink)]">{title}</h2>
         </motion.div>
 
         <ol className="relative">

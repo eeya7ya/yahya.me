@@ -21,5 +21,11 @@ export const achievements = pgTable("achievements", {
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
+export const siteSettings = pgTable("site_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+});
+
 export type RoadmapRow = typeof roadmap.$inferSelect;
 export type AchievementRow = typeof achievements.$inferSelect;
+export type SiteSettingRow = typeof siteSettings.$inferSelect;

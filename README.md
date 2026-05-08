@@ -65,7 +65,22 @@ The default fallback photo is the GitHub raw URL of the file in this repo.
 
 ## Editing content
 
-- **Hero text & UI strings** — `lib/i18n.ts`
+The fastest way is the **admin panel** at `/admin`:
+
+1. Set `ADMIN_PASSWORD` (and ideally `ADMIN_SECRET`) in your env.
+2. Visit `/admin/login`, enter the password.
+3. Edit Hero / About / Roadmap / Achievements / Contact / Photo URL — changes
+   are written to Neon and the public pages are revalidated automatically.
+
+Everything also has a code fallback if the DB is unavailable:
+
+- **Hero / nav / UI strings (defaults)** — `lib/i18n.ts`
 - **Static fallback CV data** — `lib/seed-data.ts`
-- **Live CV data** — Neon (use `npm run db:seed` after editing `seed-data.ts`)
 - **Color palette** — `app/globals.css` (`@theme` block)
+
+## Routes
+
+- `/` — interactive slide deck (default landing experience)
+- `/about`, `/roadmap`, `/achievements`, `/contact` — same content as the
+  matching slide, opened as a full standalone page (linkable / shareable)
+- `/admin/login`, `/admin` — password-protected editor
