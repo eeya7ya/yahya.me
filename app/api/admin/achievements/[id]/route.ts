@@ -30,6 +30,7 @@ export async function PUT(req: Request, ctx: Ctx) {
   try {
     await ensureSchema();
     const [updated] = await db.update(achievements).set(updates).where(eq(achievements.id, numId)).returning();
+    if (!updated) return NextResponse.json({ error: "not_found" }, { status: 404 });
     revalidatePath("/");
     revalidatePath("/achievements");
     return NextResponse.json(updated);
