@@ -36,6 +36,15 @@ function parseMediaField(raw: string | undefined | null): MediaItem[] {
   }
 }
 
+function achievementMediaItems(row: { media?: string; imageUrl?: string; videoUrl?: string }): MediaItem[] {
+  const fromMedia = parseMediaField(row.media);
+  if (fromMedia.length > 0) return fromMedia;
+  const legacy: MediaItem[] = [];
+  if (row.videoUrl) legacy.push({ url: row.videoUrl, type: "video" });
+  if (row.imageUrl) legacy.push({ url: row.imageUrl, type: "image" });
+  return legacy;
+}
+
 export default function AdminPanel({ content, roadmap, achievements, dbConnected }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("content");
@@ -512,8 +521,14 @@ function AchievementsEditor({
             <TextareaField label="Desc (EN)" value={row.descEn} onChange={(v) => update(row.id, { descEn: v })} />
           </div>
           <MediaGallery
-            items={parseMediaField(row.media)}
-            onChange={(media) => update(row.id, { media: JSON.stringify(media) })}
+            items={achievementMediaItems(row)}
+            onChange={(media) =>
+              update(row.id, {
+                media: JSON.stringify(media),
+                imageUrl: "",
+                videoUrl: "",
+              })
+            }
             flash={flash}
           />
           <div className="flex items-center justify-end gap-2">
