@@ -38,24 +38,8 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           src={photoUrl}
           alt={name}
           className="h-full w-full object-contain object-bottom"
-          style={{
-            WebkitMaskImage: isRtl
-              ? "linear-gradient(to right, transparent 0%, black 24%, black 100%)"
-              : "linear-gradient(to left, transparent 0%, black 24%, black 100%)",
-            maskImage: isRtl
-              ? "linear-gradient(to right, transparent 0%, black 24%, black 100%)"
-              : "linear-gradient(to left, transparent 0%, black 24%, black 100%)",
-          }}
+          style={{ mixBlendMode: "multiply" }}
           loading="eager"
-        />
-        {/* soft cream fade at the bottom so the legs blend into the page */}
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-40 md:h-56"
-          style={{
-            background:
-              "linear-gradient(to top, var(--color-cream) 0%, rgba(255,250,243,0.7) 45%, transparent 100%)",
-          }}
         />
       </motion.div>
 
