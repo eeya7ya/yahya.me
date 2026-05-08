@@ -146,6 +146,12 @@ function ContentEditor({
     <div className="space-y-8">
       <Section title="Photo">
         <Field label="Photo URL" value={draft.photoUrl} onChange={(v) => setDraft({ ...draft, photoUrl: v })} />
+        <PhotoUploader
+          onUploaded={(url) => {
+            setDraft((d) => ({ ...d, photoUrl: url }));
+            flash("Uploaded — remember to Save all");
+          }}
+        />
         {draft.photoUrl && (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img src={draft.photoUrl} alt="preview" className="mt-2 h-32 w-32 object-cover rounded-xl border border-[var(--color-orange-300)]/40" />
@@ -483,6 +489,76 @@ function AchievementsEditor({
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---------------- Photo uploader (R2) ---------------- */
+
+function PhotoUploader({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number | null>(null);
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setError(null);
+    setBusy(true);
+    setProgress(0);
+    try {
+      const ticket = await fetch("/api/admin/upload-url", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ contentType: file.type, filename: file.name, size: file.size }),
+      });
+      if (!ticket.ok) {
+        const data = await ticket.json().catch(() => ({}));
+        const code = data.error || "presign_failed";
+        const msg =
+          code === "r2_not_configured" ? "R2 is not configured (missing env vars)."
+          : code === "unsupported_type" ? "Only JPEG / PNG / WebP / GIF / AVIF are accepted."
+          : code === "too_large" ? "File is larger than 10 MB."
+          : `Upload failed: ${code}`;
+        throw new Error(msg);
+      }
+      const { uploadUrl, publicUrl } = (await ticket.json()) as { uploadUrl: string; publicUrl: string };
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", uploadUrl);
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) setProgress(Math.round((ev.loaded / ev.total) * 100));
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error(`R2 PUT failed (${xhr.status})`));
+        };
+        xhr.onerror = () => reject(new Error("R2 PUT network error (check bucket CORS)"));
+        xhr.send(file);
+      });
+
+      onUploaded(publicUrl);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      setProgress(null);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <label className={`inline-flex items-center gap-2 cursor-pointer rounded-lg border border-[var(--color-orange-300)]/60 bg-white/70 px-3 py-2 text-xs hover:bg-[var(--color-orange-50)] ${busy ? "opacity-60 pointer-events-none" : ""}`}>
+          <span>{busy ? `Uploading ${progress ?? 0}%` : "Upload to R2"}</span>
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" onChange={onFile} disabled={busy} className="hidden" />
+        </label>
+        <span className="text-xs text-[var(--color-ink-soft)]">JPEG/PNG/WebP/GIF/AVIF, up to 10 MB</span>
+      </div>
+      {error && <div className="text-xs text-red-600">{error}</div>}
     </div>
   );
 }

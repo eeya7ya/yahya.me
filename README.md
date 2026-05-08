@@ -57,11 +57,56 @@ Or apply `drizzle/0000_init.sql` directly in the Neon SQL editor.
 3. Deploy.
 
 ### Cloudflare R2 (photo hosting)
-1. Create an R2 bucket and upload your photo.
-2. Either enable the bucket's public `r2.dev` URL or attach a custom domain.
-3. Set `NEXT_PUBLIC_PHOTO_URL` in Vercel to that URL — no redeploy needed if you redeploy the latest build.
 
-The default fallback photo is the GitHub raw URL of the file in this repo.
+The `/admin` panel can upload images straight to an R2 bucket via presigned
+URLs. To enable it:
+
+1. **Create the bucket** in the Cloudflare dashboard
+   (R2 → *Create bucket*, e.g. `yahya-me-photos`).
+
+2. **Make objects publicly readable** — either:
+   - **r2.dev (quickest):** in the bucket *Settings* tab, enable
+     *Public access via r2.dev*. Cloudflare gives you a URL like
+     `https://pub-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.r2.dev`.
+   - **Custom domain:** *Settings* → *Custom domains* → add e.g.
+     `photos.yahya.me`. (Recommended for production.)
+
+3. **Configure CORS** on the bucket so the browser can `PUT` directly:
+   *Settings → CORS Policy*
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://yahya.me", "http://localhost:3000"],
+       "AllowedMethods": ["PUT", "GET", "HEAD"],
+       "AllowedHeaders": ["*"],
+       "ExposeHeaders": ["ETag"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+4. **Create an API token** with R2 read+write scoped to that bucket:
+   R2 → *Manage R2 API Tokens* → *Create API Token* → permission
+   *Object Read & Write*, scope to your bucket. Save the access key id and
+   secret.
+
+5. **Set env vars** (Vercel and `.env.local`):
+
+   ```
+   R2_ACCOUNT_ID=...                # from R2 dashboard URL
+   R2_ACCESS_KEY_ID=...
+   R2_SECRET_ACCESS_KEY=...
+   R2_BUCKET=yahya-me-photos
+   R2_PUBLIC_URL=https://pub-xxxxxxxx.r2.dev   # or your custom domain, no trailing slash
+   ```
+
+6. **Use it.** Open `/admin`, *Photo* section → *Upload to R2*. The file is
+   uploaded directly from the browser to R2; the resulting public URL is
+   filled into the *Photo URL* field. Click *Save all* to persist it.
+
+`NEXT_PUBLIC_PHOTO_URL` is still honored as the fallback photo if the DB has no
+`photo.url` row yet — handy for first-deploy / no-DB scenarios.
 
 ## Editing content
 
