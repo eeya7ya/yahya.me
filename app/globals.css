@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fffaf3;
+  --color-cream-2: #fff3e2;
+  --color-orange-50: #fff4e6;
+  --color-orange-100: #ffe2bf;
+  --color-orange-300: #ffb066;
+  --color-orange-500: #f08a2b;
+  --color-orange-600: #d9701a;
+  --color-ink: #1a1410;
+  --color-ink-soft: #4a3a2e;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "Noto Naskh Arabic", "Cairo", system-ui, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+html[dir="ltr"] body {
+  font-family: var(--font-sans);
+}
+
+/* hide scrollbars on the slide deck */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* soft sun-glow used as a background flourish */
+.sunglow {
+  background:
+    radial-gradient(60rem 40rem at 80% -10%, var(--color-orange-100) 0%, transparent 60%),
+    radial-gradient(40rem 30rem at -10% 100%, var(--color-orange-50) 0%, transparent 55%),
+    var(--color-cream);
+}
+
+/* glassy "colorless cover" over the photo */
+.photo-veil {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.18) 50%, rgba(255,244,230,0.32) 100%);
+  backdrop-filter: blur(2px) saturate(85%);
+  -webkit-backdrop-filter: blur(2px) saturate(85%);
+}
