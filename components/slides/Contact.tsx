@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import type { Lang, Dict } from "@/lib/i18n";
+import { dict, type Lang, type Dict } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 
 export default function Contact({
@@ -16,6 +17,7 @@ export default function Contact({
   const c = content.contact;
   const title = lang === "ar" ? c.titleAr : c.titleEn;
   const subtitle = lang === "ar" ? c.subtitleAr : c.subtitleEn;
+  const viewMore = dict[lang].ui.viewMore;
 
   const links = [
     { key: "email" as const,    href: c.email.startsWith("mailto:") ? c.email : `mailto:${c.email}`, icon: "✉" },
@@ -62,6 +64,21 @@ export default function Contact({
             <span>{t.contact[l.key]}</span>
           </a>
         ))}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.5 }}
+        className="mt-8"
+      >
+        <Link
+          href="/contact"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur text-[var(--color-orange-600)] text-sm font-semibold px-5 py-2.5 hover:bg-[var(--color-orange-50)] transition"
+        >
+          <span>{viewMore}</span>
+          <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
+        </Link>
       </motion.div>
     </div>
   );

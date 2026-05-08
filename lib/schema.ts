@@ -18,6 +18,8 @@ export const achievements = pgTable("achievements", {
   descAr: text("desc_ar").notNull(),
   descEn: text("desc_en").notNull(),
   icon: text("icon").notNull().default("spark"),
+  imageUrl: text("image_url").notNull().default(""),
+  videoUrl: text("video_url").notNull().default(""),
   sortOrder: integer("sort_order").notNull().default(0),
 });
 

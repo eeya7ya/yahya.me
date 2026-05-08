@@ -10,6 +10,7 @@ export default function AboutFull({ content }: { content: SiteContent }) {
   const title = lang === "ar" ? a.titleAr : a.titleEn;
   const body = lang === "ar" ? a.bodyAr : a.bodyEn;
   const values = lang === "ar" ? a.valuesAr : a.valuesEn;
+  const media = a.media ?? [];
 
   return (
     <section className="max-w-3xl mx-auto px-6 md:px-10 py-16 md:py-24">
@@ -44,6 +45,33 @@ export default function AboutFull({ content }: { content: SiteContent }) {
           </li>
         ))}
       </motion.ul>
+
+      {media.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
+          {media.map((m, i) => (
+            <figure
+              key={i}
+              className="rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/70 overflow-hidden"
+            >
+              {m.type === "video" ? (
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <video src={m.url} controls className="w-full h-64 object-cover bg-black" />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={m.url} alt={m.caption ?? ""} className="w-full h-64 object-cover" />
+              )}
+              {m.caption && (
+                <figcaption className="px-4 py-2 text-sm text-[var(--color-ink-soft)]">{m.caption}</figcaption>
+              )}
+            </figure>
+          ))}
+        </motion.div>
+      )}
     </section>
   );
 }

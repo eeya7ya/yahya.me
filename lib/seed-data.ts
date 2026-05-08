@@ -57,6 +57,8 @@ export const seedAchievements: AchievementRow[] = [
     descAr: "فريقي حصل على المركز الأول في مسابقة الجامعة لتصميم منظومات الطاقة.",
     descEn: "My team took 1st place in the university energy-systems design competition.",
     icon: "trophy",
+    imageUrl: "",
+    videoUrl: "",
     sortOrder: 1,
   },
   {
@@ -67,6 +69,8 @@ export const seedAchievements: AchievementRow[] = [
     descAr: "تدريب صيفي على عمليات النقل والتوزيع وحماية الشبكة.",
     descEn: "Summer internship covering transmission, distribution, and grid protection.",
     icon: "bolt",
+    imageUrl: "",
+    videoUrl: "",
     sortOrder: 2,
   },
   {
@@ -77,6 +81,8 @@ export const seedAchievements: AchievementRow[] = [
     descAr: "إتمام شهادة احترافية في تصميم وتشغيل منظومات الطاقة الشمسية.",
     descEn: "Completed a professional certification in solar PV system design and operation.",
     icon: "sun",
+    imageUrl: "",
+    videoUrl: "",
     sortOrder: 3,
   },
   {
@@ -87,6 +93,8 @@ export const seedAchievements: AchievementRow[] = [
     descAr: "مشروع تخرج عن إدارة الطلب في الشبكات الذكية، حصل على تقدير امتياز.",
     descEn: "Graduation project on demand-side management in smart grids, awarded distinction.",
     icon: "spark",
+    imageUrl: "",
+    videoUrl: "",
     sortOrder: 4,
   },
 ];

@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import type { Lang } from "@/lib/i18n";
+import { dict, type Lang } from "@/lib/i18n";
 import type { RoadmapRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
 
@@ -17,6 +18,7 @@ export default function Roadmap({
   const r = content.roadmap;
   const title = lang === "ar" ? r.titleAr : r.titleEn;
   const subtitle = lang === "ar" ? r.subtitleAr : r.subtitleEn;
+  const viewMore = dict[lang].ui.viewMore;
 
   return (
     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center justify-start md:justify-center px-6 md:px-16 py-24">
@@ -62,6 +64,16 @@ export default function Roadmap({
             );
           })}
         </ol>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/roadmap"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
+          >
+            <span>{viewMore}</span>
+            <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

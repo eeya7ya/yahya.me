@@ -23,6 +23,8 @@ export async function PUT(req: Request, ctx: Ctx) {
     descAr: String(body.descAr ?? ""),
     descEn: String(body.descEn ?? ""),
     icon: String(body.icon ?? "spark"),
+    imageUrl: String(body.imageUrl ?? ""),
+    videoUrl: String(body.videoUrl ?? ""),
     sortOrder: Number.isFinite(body.sortOrder) ? Number(body.sortOrder) : 0,
   };
   const [updated] = await db.update(achievements).set(updates).where(eq(achievements.id, numId)).returning();
