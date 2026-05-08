@@ -7,7 +7,7 @@ type Ctx = { lang: Lang; setLang: (l: Lang) => void };
 const LangCtx = createContext<Ctx | null>(null);
 
 export function LangProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>("ar");
+  const [lang, setLang] = useState<Lang>("en");
 
   useEffect(() => {
     const stored = (typeof window !== "undefined" && localStorage.getItem("lang")) as Lang | null;
@@ -27,7 +27,7 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
 
 export function useLang(): Lang {
   const ctx = useContext(LangCtx);
-  return ctx?.lang ?? "ar";
+  return ctx?.lang ?? "en";
 }
 
 export function useLangCtx(): Ctx {
