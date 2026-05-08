@@ -229,7 +229,7 @@ function ContentEditor({
           labelEn="Subtitle (EN)" valueEn={draft.contact.subtitleEn} onChangeEn={(v) => patch("contact", { ...draft.contact, subtitleEn: v })}
         />
         <Field label="Email" value={draft.contact.email} onChange={(v) => patch("contact", { ...draft.contact, email: v })} />
-        <Field label="GitHub URL" value={draft.contact.github} onChange={(v) => patch("contact", { ...draft.contact, github: v })} />
+        <Field label="Website URL" value={draft.contact.github} onChange={(v) => patch("contact", { ...draft.contact, github: v })} />
         <Field label="LinkedIn URL" value={draft.contact.linkedin} onChange={(v) => patch("contact", { ...draft.contact, linkedin: v })} />
       </Section>
 
