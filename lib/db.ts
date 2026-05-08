@@ -55,6 +55,7 @@ export async function ensureSchema(): Promise<void> {
       )`;
       await sql`ALTER TABLE "achievements" ADD COLUMN IF NOT EXISTS "image_url" text NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE "achievements" ADD COLUMN IF NOT EXISTS "video_url" text NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE "achievements" ADD COLUMN IF NOT EXISTS "media" text NOT NULL DEFAULT '[]'`;
     } catch (err) {
       _schemaReady = null;
       throw err;

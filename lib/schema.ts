@@ -20,6 +20,7 @@ export const achievements = pgTable("achievements", {
   icon: text("icon").notNull().default("spark"),
   imageUrl: text("image_url").notNull().default(""),
   videoUrl: text("video_url").notNull().default(""),
+  media: text("media").notNull().default("[]"),
   sortOrder: integer("sort_order").notNull().default(0),
 });
 

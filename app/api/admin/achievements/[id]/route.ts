@@ -25,6 +25,7 @@ export async function PUT(req: Request, ctx: Ctx) {
     icon: String(body.icon ?? "spark"),
     imageUrl: String(body.imageUrl ?? ""),
     videoUrl: String(body.videoUrl ?? ""),
+    media: serializeMedia(body.media),
     sortOrder: Number.isFinite(body.sortOrder) ? Number(body.sortOrder) : 0,
   };
   try {
@@ -58,4 +59,29 @@ export async function DELETE(_req: Request, ctx: Ctx) {
 
 function errMsg(err: unknown) {
   return err instanceof Error ? err.message : String(err);
+}
+
+function serializeMedia(input: unknown): string {
+  if (typeof input === "string") {
+    try {
+      const parsed = JSON.parse(input);
+      return Array.isArray(parsed) ? JSON.stringify(parsed.map(normalizeMedia).filter(Boolean)) : "[]";
+    } catch {
+      return "[]";
+    }
+  }
+  if (Array.isArray(input)) {
+    return JSON.stringify(input.map(normalizeMedia).filter(Boolean));
+  }
+  return "[]";
+}
+
+function normalizeMedia(m: unknown): { url: string; type: "image" | "video"; caption?: string } | null {
+  if (!m || typeof m !== "object") return null;
+  const item = m as Record<string, unknown>;
+  const url = typeof item.url === "string" ? item.url.trim() : "";
+  if (!url) return null;
+  const type = item.type === "video" ? "video" : "image";
+  const caption = typeof item.caption === "string" && item.caption.trim() ? item.caption : undefined;
+  return caption ? { url, type, caption } : { url, type };
 }
