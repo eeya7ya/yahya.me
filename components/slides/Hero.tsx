@@ -22,7 +22,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
   void t;
 
   return (
-    <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-[1.7fr_1fr]">
+    <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-[1.3fr_1.1fr]">
       {/* Left side — name + tagline */}
       <div className="flex flex-col justify-center px-8 md:px-16 lg:px-24 py-20">
         <motion.span
@@ -76,19 +76,20 @@ export default function Hero({ lang, t, content, onNext }: Props) {
         </motion.button>
       </div>
 
-      {/* Right side — photo with colorless veil (smaller, framed) */}
-      <div className="relative h-full min-h-[35vh] md:min-h-0 flex items-center justify-center p-6 md:p-10 lg:p-14">
+      {/* Right side — photo blended into the cream, behind a colorless cover */}
+      <div className="relative h-full min-h-[35vh] md:min-h-0 flex items-center justify-center p-2 md:p-4 lg:p-6">
         <motion.div
           initial={{ scale: 1.04, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative h-full w-full max-h-[78vh] max-w-[28rem] overflow-hidden rounded-3xl shadow-[0_20px_60px_-30px_rgba(217,112,26,0.45)]"
+          className="relative h-full w-full max-h-[92vh] max-w-[36rem]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={photoUrl}
             alt={name}
-            className="h-full w-full object-cover object-center"
+            className="h-full w-full object-contain object-center"
+            style={{ mixBlendMode: "multiply" }}
             loading="eager"
           />
           <div className="absolute inset-0 photo-veil pointer-events-none" />
@@ -97,7 +98,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(to left, rgba(255,244,230,0.0) 0%, rgba(255,244,230,0.18) 80%, rgba(255,250,243,0.42) 100%)",
+                "linear-gradient(to left, rgba(255,244,230,0.0) 0%, rgba(255,244,230,0.14) 80%, rgba(255,250,243,0.34) 100%)",
             }}
           />
         </motion.div>
