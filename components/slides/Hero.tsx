@@ -39,6 +39,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           alt={name}
           className="h-full w-full object-contain object-bottom"
           style={{
+            mixBlendMode: "multiply",
             WebkitMaskImage: isRtl
               ? "linear-gradient(to right, transparent 0%, black 24%, black 100%)"
               : "linear-gradient(to left, transparent 0%, black 24%, black 100%)",
