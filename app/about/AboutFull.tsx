@@ -26,7 +26,7 @@ export default function AboutFull({ content }: { content: SiteContent }) {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.6 }}
-        className="mt-6 text-2xl md:text-4xl leading-relaxed text-[var(--color-ink)]"
+        className="mt-6 text-base md:text-xl leading-[1.9] text-[var(--color-ink)]"
       >
         {body}
       </motion.p>
