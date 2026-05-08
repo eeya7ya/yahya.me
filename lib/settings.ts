@@ -2,8 +2,7 @@ import { getDb } from "./db";
 import { siteSettings } from "./schema";
 import { dict } from "./i18n";
 
-const DEFAULT_PHOTO =
-  "https://raw.githubusercontent.com/eeya7ya/yahya.me/main/ChatGPT%20Image%20May%208%2C%202026%2C%2007_03_21%20PM.png";
+const DEFAULT_PHOTO = "/profile.png";
 
 export type SiteContent = {
   photoUrl: string;
