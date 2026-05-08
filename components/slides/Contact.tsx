@@ -21,9 +21,10 @@ export default function Contact({
 
   const links = [
     { key: "email" as const,    href: c.email.startsWith("mailto:") ? c.email : `mailto:${c.email}`, icon: "✉" },
+    { key: "website" as const,  href: c.website,  icon: "↗" },
     { key: "github" as const,   href: c.github,   icon: "◐" },
     { key: "linkedin" as const, href: c.linkedin, icon: "in" },
-  ];
+  ].filter((l) => l.href && l.href.trim() !== "");
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center px-8 md:px-16 text-center">

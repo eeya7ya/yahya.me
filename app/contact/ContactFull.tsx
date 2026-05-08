@@ -14,9 +14,10 @@ export default function ContactFull({ content }: { content: SiteContent }) {
 
   const links = [
     { key: "email" as const,    href: c.email.startsWith("mailto:") ? c.email : `mailto:${c.email}`, icon: "✉" },
+    { key: "website" as const,  href: c.website,  icon: "↗" },
     { key: "github" as const,   href: c.github,   icon: "◐" },
     { key: "linkedin" as const, href: c.linkedin, icon: "in" },
-  ];
+  ].filter((l) => l.href && l.href.trim() !== "");
 
   return (
     <section className="max-w-3xl mx-auto px-6 md:px-10 py-20 md:py-28 text-center">

@@ -30,7 +30,7 @@ export type SiteContent = {
   contact: {
     titleAr: string; titleEn: string;
     subtitleAr: string; subtitleEn: string;
-    email: string; github: string; linkedin: string;
+    email: string; github: string; linkedin: string; website: string;
   };
 };
 
@@ -64,6 +64,7 @@ export const defaultContent: SiteContent = {
     email: "contact@yahya.me",
     github: "https://github.com/eeya7ya",
     linkedin: "https://linkedin.com/in/yahya-khaled",
+    website: "https://eSpark.dev",
   },
 };
 
@@ -91,7 +92,7 @@ export const SETTING_KEYS = [
 
   ["contact.title.ar", "string"], ["contact.title.en", "string"],
   ["contact.subtitle.ar", "string"], ["contact.subtitle.en", "string"],
-  ["contact.email", "string"], ["contact.github", "string"], ["contact.linkedin", "string"],
+  ["contact.email", "string"], ["contact.github", "string"], ["contact.linkedin", "string"], ["contact.website", "string"],
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number][0];
@@ -138,6 +139,7 @@ function applyOverrides(base: SiteContent, map: Map<string, string>): SiteConten
   c.contact.email    = get("contact.email")    ?? c.contact.email;
   c.contact.github   = get("contact.github")   ?? c.contact.github;
   c.contact.linkedin = get("contact.linkedin") ?? c.contact.linkedin;
+  c.contact.website  = get("contact.website")  ?? c.contact.website;
 
   return c;
 }
@@ -164,6 +166,7 @@ export function contentToFlat(c: SiteContent): Record<SettingKey, string> {
     "contact.email": c.contact.email,
     "contact.github": c.contact.github,
     "contact.linkedin": c.contact.linkedin,
+    "contact.website": c.contact.website,
   };
 }
 
