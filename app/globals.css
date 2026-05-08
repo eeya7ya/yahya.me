@@ -46,10 +46,3 @@ html[dir="ltr"] body {
     var(--color-cream);
 }
 
-/* glassy "colorless cover" over the photo */
-.photo-veil {
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 50%, rgba(255,244,230,0.18) 100%);
-  backdrop-filter: blur(1.5px) saturate(90%);
-  -webkit-backdrop-filter: blur(1.5px) saturate(90%);
-}
