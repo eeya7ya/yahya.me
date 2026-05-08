@@ -17,6 +17,25 @@ type Tab = "content" | "roadmap" | "achievements";
 
 const ICON_OPTIONS = ["spark", "trophy", "bolt", "sun"] as const;
 
+type MediaItem = SiteContent["about"]["media"][number];
+
+function parseMediaField(raw: string | undefined | null): MediaItem[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((m) => m && typeof m.url === "string" && m.url.length > 0)
+      .map((m) => ({
+        url: String(m.url),
+        type: m.type === "video" ? "video" : "image",
+        caption: typeof m.caption === "string" ? m.caption : undefined,
+      })) as MediaItem[];
+  } catch {
+    return [];
+  }
+}
+
 export default function AdminPanel({ content, roadmap, achievements, dbConnected }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("content");
@@ -402,7 +421,7 @@ function AchievementsEditor({
       ...rs,
       {
         id: tempId, year: "", titleAr: "", titleEn: "", descAr: "", descEn: "",
-        icon: "spark", imageUrl: "", videoUrl: "",
+        icon: "spark", imageUrl: "", videoUrl: "", media: "[]",
         sortOrder: rs.length + 1, _isNew: true, _dirty: true,
       },
     ]);
@@ -415,6 +434,7 @@ function AchievementsEditor({
         year: row.year, titleAr: row.titleAr, titleEn: row.titleEn,
         descAr: row.descAr, descEn: row.descEn, icon: row.icon,
         imageUrl: row.imageUrl, videoUrl: row.videoUrl,
+        media: parseMediaField(row.media),
         sortOrder: row.sortOrder,
       };
       if (row._isNew) {
@@ -491,20 +511,11 @@ function AchievementsEditor({
             <TextareaField label="Desc (AR)" value={row.descAr} onChange={(v) => update(row.id, { descAr: v })} />
             <TextareaField label="Desc (EN)" value={row.descEn} onChange={(v) => update(row.id, { descEn: v })} />
           </div>
-          <div className="grid md:grid-cols-2 gap-3">
-            <UrlUploadField
-              label="Certificate / image URL"
-              accept="image/*"
-              value={row.imageUrl}
-              onChange={(v) => update(row.id, { imageUrl: v })}
-            />
-            <UrlUploadField
-              label="Video URL"
-              accept="video/*"
-              value={row.videoUrl}
-              onChange={(v) => update(row.id, { videoUrl: v })}
-            />
-          </div>
+          <MediaGallery
+            items={parseMediaField(row.media)}
+            onChange={(media) => update(row.id, { media: JSON.stringify(media) })}
+            flash={flash}
+          />
           <div className="flex items-center justify-end gap-2">
             <button onClick={() => deleteRow(row)} disabled={busy} className="text-xs px-3 py-1.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60">
               Delete
@@ -607,8 +618,6 @@ function UrlUploadField({
     </div>
   );
 }
-
-type MediaItem = SiteContent["about"]["media"][number];
 
 function MediaGallery({
   items,

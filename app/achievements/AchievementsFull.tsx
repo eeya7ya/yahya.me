@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useLang } from "@/components/LangProvider";
 import type { AchievementRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
+import { parseAchievementMedia, type AchievementMedia } from "@/lib/achievements";
 
 const ICONS: Record<string, string> = {
   trophy: "🏆",
@@ -37,73 +39,123 @@ export default function AchievementsFull({
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-        {items.map((it, i) => {
-          const t = lang === "ar" ? it.titleAr : it.titleEn;
-          const d = lang === "ar" ? it.descAr : it.descEn;
-          const hasMedia = Boolean(it.imageUrl || it.videoUrl);
-          return (
-            <motion.article
-              key={it.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="group relative flex flex-col overflow-hidden rounded-3xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_24px_60px_-25px_rgba(217,112,26,0.45)] transition"
-            >
-              {hasMedia && (
-                <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
-                  {it.videoUrl ? (
-                    // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <video
-                      src={it.videoUrl}
-                      controls
-                      poster={it.imageUrl || undefined}
-                      className="absolute inset-0 size-full object-cover bg-black"
-                    />
-                  ) : (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={it.imageUrl}
-                      alt={t}
-                      loading="lazy"
-                      className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                    />
-                  )}
-                  <span className="absolute top-3 left-3 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)] border border-[var(--color-orange-300)]/60">
-                    {it.year}
-                  </span>
-                  <span className="absolute top-3 right-3 grid place-items-center size-8 rounded-full bg-white/85 backdrop-blur text-base border border-[var(--color-orange-300)]/60">
-                    {ICONS[it.icon] ?? ICONS.spark}
-                  </span>
-                </div>
-              )}
-
-              <div className="flex items-start gap-4 p-6 md:p-7">
-                {!hasMedia && (
-                  <span className="grid place-items-center size-14 shrink-0 rounded-xl bg-[var(--color-orange-50)] text-2xl border border-[var(--color-orange-300)]/40">
-                    {ICONS[it.icon] ?? ICONS.spark}
-                  </span>
-                )}
-                <div className="flex-1 min-w-0">
-                  {!hasMedia && (
-                    <span className="text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)]">
-                      {it.year}
-                    </span>
-                  )}
-                  <h3 className={`${hasMedia ? "" : "mt-1"} text-xl md:text-2xl font-semibold text-[var(--color-ink)] leading-snug`}>
-                    {t}
-                  </h3>
-                  {d && (
-                    <p className="mt-2 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
-                      {d}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </motion.article>
-          );
-        })}
+        {items.map((it, i) => (
+          <AchievementCard key={it.id} row={it} index={i} lang={lang} />
+        ))}
       </div>
     </section>
+  );
+}
+
+function AchievementCard({
+  row,
+  index,
+  lang,
+}: {
+  row: AchievementRow;
+  index: number;
+  lang: "ar" | "en";
+}) {
+  const t = lang === "ar" ? row.titleAr : row.titleEn;
+  const d = lang === "ar" ? row.descAr : row.descEn;
+  const media = parseAchievementMedia(row);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active: AchievementMedia | undefined = media[activeIdx];
+  const hasMedia = Boolean(active);
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_24px_60px_-25px_rgba(217,112,26,0.45)] transition"
+    >
+      {hasMedia && active && (
+        <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
+          {active.type === "video" ? (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              key={active.url}
+              src={active.url}
+              controls
+              className="absolute inset-0 size-full object-cover bg-black"
+            />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              key={active.url}
+              src={active.url}
+              alt={t}
+              loading="lazy"
+              className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            />
+          )}
+          <span className="absolute top-3 left-3 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)] border border-[var(--color-orange-300)]/60">
+            {row.year}
+          </span>
+          <span className="absolute top-3 right-3 grid place-items-center size-8 rounded-full bg-white/85 backdrop-blur text-base border border-[var(--color-orange-300)]/60">
+            {ICONS[row.icon] ?? ICONS.spark}
+          </span>
+        </div>
+      )}
+
+      {media.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar px-4 pt-3">
+          {media.map((m, idx) => {
+            const isActive = idx === activeIdx;
+            return (
+              <button
+                key={`${m.url}-${idx}`}
+                type="button"
+                onClick={() => setActiveIdx(idx)}
+                aria-label={`Media ${idx + 1}`}
+                aria-pressed={isActive}
+                className={`relative shrink-0 size-14 rounded-lg overflow-hidden border transition ${
+                  isActive
+                    ? "border-[var(--color-orange-500)] ring-2 ring-[var(--color-orange-500)]/30"
+                    : "border-[var(--color-orange-300)]/50 opacity-70 hover:opacity-100"
+                }`}
+              >
+                {m.type === "video" ? (
+                  <span className="absolute inset-0 grid place-items-center bg-black text-white text-base">▶</span>
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={m.url} alt="" className="absolute inset-0 size-full object-cover" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="flex items-start gap-4 p-6 md:p-7">
+        {!hasMedia && (
+          <span className="grid place-items-center size-14 shrink-0 rounded-xl bg-[var(--color-orange-50)] text-2xl border border-[var(--color-orange-300)]/40">
+            {ICONS[row.icon] ?? ICONS.spark}
+          </span>
+        )}
+        <div className="flex-1 min-w-0">
+          {!hasMedia && (
+            <span className="text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)]">
+              {row.year}
+            </span>
+          )}
+          <h3 className={`${hasMedia ? "" : "mt-1"} text-xl md:text-2xl font-semibold text-[var(--color-ink)] leading-snug`}>
+            {t}
+          </h3>
+          {d && (
+            <p className="mt-2 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
+              {d}
+            </p>
+          )}
+          {active?.caption && (
+            <p className="mt-2 text-[12px] text-[var(--color-ink-soft)] italic">
+              {active.caption}
+            </p>
+          )}
+        </div>
+      </div>
+    </motion.article>
   );
 }

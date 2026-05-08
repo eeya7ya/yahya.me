@@ -59,6 +59,7 @@ export const seedAchievements: AchievementRow[] = [
     icon: "trophy",
     imageUrl: "",
     videoUrl: "",
+    media: "[]",
     sortOrder: 1,
   },
   {
@@ -71,6 +72,7 @@ export const seedAchievements: AchievementRow[] = [
     icon: "bolt",
     imageUrl: "",
     videoUrl: "",
+    media: "[]",
     sortOrder: 2,
   },
   {
@@ -83,6 +85,7 @@ export const seedAchievements: AchievementRow[] = [
     icon: "sun",
     imageUrl: "",
     videoUrl: "",
+    media: "[]",
     sortOrder: 3,
   },
   {
@@ -95,6 +98,7 @@ export const seedAchievements: AchievementRow[] = [
     icon: "spark",
     imageUrl: "",
     videoUrl: "",
+    media: "[]",
     sortOrder: 4,
   },
 ];
