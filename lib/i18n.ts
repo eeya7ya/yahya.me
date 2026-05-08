@@ -6,8 +6,9 @@ export const dict = {
     hero: {
       greeting: "مرحباً، أنا",
       name: "يحيى خالد",
-      role: "مهندس قوى كهربائية",
-      tagline: "أصمّم. أُنفّذ.",
+      role: "مهندس قوى وآلات كهربائية",
+      tagline: "ذكاء اصطناعي · تصميم كهربائي · تقنيات تعليمية",
+      site: "eSpark.dev",
       cta: "اعرف المزيد",
     },
     about: {
@@ -32,8 +33,9 @@ export const dict = {
     hero: {
       greeting: "Hello, I'm",
       name: "Yahya Khaled",
-      role: "Electrical Power Engineer",
-      tagline: "Design. Deliver.",
+      role: "Electrical Power & Machines Engineer",
+      tagline: "AI Solutions · Electrical Design · EdTech",
+      site: "eSpark.dev",
       cta: "Learn more",
     },
     about: {

@@ -134,32 +134,51 @@ export default function Deck({ content, roadmap, achievements }: Props) {
         </motion.section>
       </AnimatePresence>
 
-      {/* Side rail (page indicators) */}
+      {/* Side rail — modular dots threaded by a vertical guide */}
       <nav
-        className={`absolute top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3 ${lang === "ar" ? "left-5 md:left-8" : "right-5 md:right-8"}`}
+        className={`absolute top-1/2 -translate-y-1/2 z-30 ${lang === "ar" ? "left-5 md:left-8" : "right-5 md:right-8"}`}
         aria-label="Slide navigation"
       >
-        {navLabels.map((label, i) => (
-          <button
-            key={label}
-            onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i); }}
-            aria-label={label}
-            className="group flex items-center gap-3"
-          >
-            <span
-              className={`block h-px transition-all duration-300 ${
-                i === index ? "w-10 bg-[var(--color-orange-500)]" : "w-5 bg-[var(--color-ink)]/30 group-hover:bg-[var(--color-orange-300)]"
-              }`}
-            />
-            <span
-              className={`text-[11px] tracking-wider uppercase transition-opacity ${
-                i === index ? "opacity-100 text-[var(--color-orange-600)]" : "opacity-0 group-hover:opacity-60"
-              }`}
-            >
-              {label}
-            </span>
-          </button>
-        ))}
+        <div className="relative flex flex-col items-center gap-6 py-3">
+          {/* vertical thread connecting the dots */}
+          <span
+            aria-hidden
+            className="absolute inset-y-3 left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-[var(--color-orange-300)]/0 via-[var(--color-ink)]/15 to-[var(--color-orange-300)]/0"
+          />
+          {navLabels.map((label, i) => {
+            const active = i === index;
+            return (
+              <button
+                key={label}
+                onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i); }}
+                aria-label={label}
+                aria-current={active ? "true" : undefined}
+                className="group relative flex items-center"
+              >
+                {/* dot marker */}
+                <span
+                  className={`relative z-10 block rounded-full transition-all duration-300 ${
+                    active
+                      ? "size-2.5 bg-[var(--color-orange-500)] ring-4 ring-[var(--color-orange-500)]/15 scale-110"
+                      : "size-2 bg-[var(--color-ink)]/30 group-hover:bg-[var(--color-orange-400)] group-hover:scale-110"
+                  }`}
+                />
+                {/* label chip — appears for active, fades in on hover otherwise */}
+                <span
+                  className={`absolute ${
+                    lang === "ar" ? "left-5" : "right-5"
+                  } whitespace-nowrap rounded-full border px-3 py-1 text-[11px] tracking-[0.18em] uppercase transition-all duration-300 ${
+                    active
+                      ? "opacity-100 border-[var(--color-orange-300)]/60 bg-white/70 backdrop-blur text-[var(--color-orange-600)]"
+                      : "opacity-0 border-transparent bg-transparent text-[var(--color-ink-soft)] group-hover:opacity-70 group-hover:border-[var(--color-orange-300)]/40 group-hover:bg-white/60"
+                  }`}
+                >
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </main>
   );
