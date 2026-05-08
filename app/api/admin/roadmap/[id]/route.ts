@@ -27,6 +27,7 @@ export async function PUT(req: Request, ctx: Ctx) {
   try {
     await ensureSchema();
     const [updated] = await db.update(roadmap).set(updates).where(eq(roadmap.id, numId)).returning();
+    if (!updated) return NextResponse.json({ error: "not_found" }, { status: 404 });
     revalidatePath("/");
     revalidatePath("/roadmap");
     return NextResponse.json(updated);

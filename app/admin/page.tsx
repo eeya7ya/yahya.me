@@ -16,12 +16,22 @@ export default async function AdminHome() {
   if (db) {
     try {
       await ensureSchema();
-      const [r, a] = await Promise.all([
+      let [r, a] = await Promise.all([
         db.select().from(roadmap).orderBy(asc(roadmap.sortOrder)),
         db.select().from(achievements).orderBy(asc(achievements.sortOrder)),
       ]);
-      if (r.length) roadmapRows = r;
-      if (a.length) achievementRows = a;
+      // First-run auto-seed so the editor shows real DB rows (with real IDs)
+      // instead of hardcoded seed data the API can't update.
+      if (r.length === 0) {
+        await db.insert(roadmap).values(seedRoadmap.map(({ id: _id, ...row }) => row));
+        r = await db.select().from(roadmap).orderBy(asc(roadmap.sortOrder));
+      }
+      if (a.length === 0) {
+        await db.insert(achievements).values(seedAchievements.map(({ id: _id, ...row }) => row));
+        a = await db.select().from(achievements).orderBy(asc(achievements.sortOrder));
+      }
+      roadmapRows = r;
+      achievementRows = a;
       dbConnected = true;
     } catch (err) {
       console.error("admin: db init failed", err);
