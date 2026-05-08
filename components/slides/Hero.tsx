@@ -51,7 +51,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.6 }}
-          className="text-sm md:text-base text-[var(--color-orange-600)] tracking-widest uppercase"
+          className="text-base md:text-xl lg:text-2xl text-[var(--color-orange-600)] tracking-widest uppercase"
         >
           {greeting}
         </motion.span>
@@ -60,7 +60,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="mt-3 text-5xl md:text-7xl lg:text-8xl font-bold leading-tight text-[var(--color-ink)]"
+          className="mt-3 text-6xl md:text-8xl lg:text-9xl font-bold leading-tight text-[var(--color-ink)]"
         >
           {name}
         </motion.h1>
@@ -69,24 +69,20 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-4 text-lg md:text-xl text-[var(--color-ink-soft)]"
+          className="mt-4 text-xl md:text-2xl lg:text-3xl text-[var(--color-ink-soft)]"
         >
           {role}
         </motion.p>
 
-        {/* Modular tagline rail: dot · gradient line · keyword chip */}
+        {/* Tagline chip — dot sits flush against the chip */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6 }}
-          className="mt-10 flex items-center gap-3"
+          className="mt-10 flex items-center gap-2"
         >
           <span aria-hidden className="size-2.5 rounded-full bg-[var(--color-orange-500)] shadow-[0_0_0_4px_rgba(217,112,26,0.15)]" />
-          <span
-            aria-hidden
-            className={`h-px w-10 md:w-14 bg-gradient-to-${isRtl ? "l" : "r"} from-[var(--color-orange-500)] to-[var(--color-orange-300)]/0`}
-          />
-          <span className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur px-4 py-1.5 text-sm md:text-base font-semibold tracking-wide text-[var(--color-orange-600)]">
+          <span className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur px-4 py-1.5 text-base md:text-lg font-semibold tracking-wide text-[var(--color-orange-600)]">
             {tagline}
           </span>
         </motion.div>

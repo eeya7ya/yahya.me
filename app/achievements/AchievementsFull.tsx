@@ -60,6 +60,26 @@ export default function AchievementsFull({
                 </p>
               </div>
             </div>
+            {(it.imageUrl || it.videoUrl) && (
+              <div className="mt-4 grid gap-3">
+                {it.imageUrl && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={it.imageUrl}
+                    alt={lang === "ar" ? it.titleAr : it.titleEn}
+                    className="w-full max-h-80 rounded-xl border border-[var(--color-orange-300)]/40 object-contain bg-white"
+                  />
+                )}
+                {it.videoUrl && (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video
+                    src={it.videoUrl}
+                    controls
+                    className="w-full max-h-80 rounded-xl border border-[var(--color-orange-300)]/40 bg-black"
+                  />
+                )}
+              </div>
+            )}
           </motion.article>
         ))}
       </div>

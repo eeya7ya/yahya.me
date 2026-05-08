@@ -26,7 +26,7 @@ export const dict = {
       github: "جيت‑هاب",
       linkedin: "لينكد‑إن",
     },
-    ui: { switchLang: "EN", scrollHint: "مرّر للأسفل" },
+    ui: { switchLang: "EN", scrollHint: "مرّر للأسفل", viewMore: "اعرف المزيد" },
   },
   en: {
     nav: { home: "Home", about: "About", roadmap: "Roadmap", achievements: "Achievements", contact: "Contact" },
@@ -53,7 +53,7 @@ export const dict = {
       github: "GitHub",
       linkedin: "LinkedIn",
     },
-    ui: { switchLang: "ع", scrollHint: "Scroll" },
+    ui: { switchLang: "ع", scrollHint: "Scroll", viewMore: "View more" },
   },
 } as const;
 

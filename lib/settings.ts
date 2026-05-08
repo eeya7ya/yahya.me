@@ -17,6 +17,7 @@ export type SiteContent = {
     titleAr: string; titleEn: string;
     bodyAr: string;  bodyEn: string;
     valuesAr: string[]; valuesEn: string[];
+    media: { url: string; type: "image" | "video"; caption?: string }[];
   };
   roadmap: {
     titleAr: string; titleEn: string;
@@ -47,6 +48,7 @@ export const defaultContent: SiteContent = {
     bodyAr: dict.ar.about.body,   bodyEn: dict.en.about.body,
     valuesAr: [...dict.ar.about.values],
     valuesEn: [...dict.en.about.values],
+    media: [],
   },
   roadmap: {
     titleAr: dict.ar.roadmap.title,    titleEn: dict.en.roadmap.title,
@@ -79,6 +81,7 @@ export const SETTING_KEYS = [
   ["about.title.ar", "string"], ["about.title.en", "string"],
   ["about.body.ar", "string"],  ["about.body.en", "string"],
   ["about.values.ar", "json"],  ["about.values.en", "json"],
+  ["about.media", "json"],
 
   ["roadmap.title.ar", "string"], ["roadmap.title.en", "string"],
   ["roadmap.subtitle.ar", "string"], ["roadmap.subtitle.en", "string"],
@@ -116,6 +119,7 @@ function applyOverrides(base: SiteContent, map: Map<string, string>): SiteConten
   c.about.bodyEn  = get("about.body.en")  ?? c.about.bodyEn;
   const vAr = get("about.values.ar"); if (vAr) { try { c.about.valuesAr = JSON.parse(vAr); } catch {} }
   const vEn = get("about.values.en"); if (vEn) { try { c.about.valuesEn = JSON.parse(vEn); } catch {} }
+  const vMedia = get("about.media"); if (vMedia) { try { c.about.media = JSON.parse(vMedia); } catch {} }
 
   c.roadmap.titleAr    = get("roadmap.title.ar")    ?? c.roadmap.titleAr;
   c.roadmap.titleEn    = get("roadmap.title.en")    ?? c.roadmap.titleEn;
@@ -150,6 +154,7 @@ export function contentToFlat(c: SiteContent): Record<SettingKey, string> {
     "about.body.ar": c.about.bodyAr,       "about.body.en": c.about.bodyEn,
     "about.values.ar": JSON.stringify(c.about.valuesAr),
     "about.values.en": JSON.stringify(c.about.valuesEn),
+    "about.media": JSON.stringify(c.about.media ?? []),
     "roadmap.title.ar": c.roadmap.titleAr, "roadmap.title.en": c.roadmap.titleEn,
     "roadmap.subtitle.ar": c.roadmap.subtitleAr, "roadmap.subtitle.en": c.roadmap.subtitleEn,
     "achievements.title.ar": c.achievements.titleAr, "achievements.title.en": c.achievements.titleEn,

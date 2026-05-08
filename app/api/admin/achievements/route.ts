@@ -24,6 +24,8 @@ export async function POST(req: Request) {
     descAr: String(body.descAr ?? ""),
     descEn: String(body.descEn ?? ""),
     icon: String(body.icon ?? "spark"),
+    imageUrl: String(body.imageUrl ?? ""),
+    videoUrl: String(body.videoUrl ?? ""),
     sortOrder: Number.isFinite(body.sortOrder) ? Number(body.sortOrder) : 0,
   };
   const [created] = await db.insert(achievements).values(row).returning();

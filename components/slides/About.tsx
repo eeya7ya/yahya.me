@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import type { Lang } from "@/lib/i18n";
+import { dict, type Lang } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 
 export default function About({ lang, content }: { lang: Lang; content: SiteContent }) {
@@ -9,6 +10,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
   const title = lang === "ar" ? a.titleAr : a.titleEn;
   const body = lang === "ar" ? a.bodyAr : a.bodyEn;
   const values = lang === "ar" ? a.valuesAr : a.valuesEn;
+  const viewMore = dict[lang].ui.viewMore;
 
   return (
     <div className="absolute inset-0 flex items-center justify-center px-8 md:px-16">
@@ -45,6 +47,21 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             </li>
           ))}
         </motion.ul>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-10"
+        >
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
+          >
+            <span>{viewMore}</span>
+            <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

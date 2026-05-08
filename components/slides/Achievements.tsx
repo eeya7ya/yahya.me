@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import type { Lang } from "@/lib/i18n";
+import { dict, type Lang } from "@/lib/i18n";
 import type { AchievementRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
 
@@ -24,6 +25,7 @@ export default function Achievements({
   const a = content.achievements;
   const title = lang === "ar" ? a.titleAr : a.titleEn;
   const subtitle = lang === "ar" ? a.subtitleAr : a.subtitleEn;
+  const viewMore = dict[lang].ui.viewMore;
 
   return (
     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center justify-start md:justify-center px-6 md:px-16 py-24">
@@ -63,9 +65,27 @@ export default function Achievements({
                     {lang === "ar" ? it.descAr : it.descEn}
                   </p>
                 </div>
+                {it.imageUrl && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={it.imageUrl}
+                    alt=""
+                    className="hidden md:block size-16 rounded-lg object-cover border border-[var(--color-orange-300)]/40"
+                  />
+                )}
               </div>
             </motion.article>
           ))}
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/achievements"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
+          >
+            <span>{viewMore}</span>
+            <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
+          </Link>
         </div>
       </div>
     </div>

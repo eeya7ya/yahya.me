@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { RoadmapRow, AchievementRow } from "@/lib/schema";
 import { contentToFlat, type SiteContent } from "@/lib/settings";
 
@@ -189,6 +189,11 @@ function ContentEditor({
           onChangeAr={(v) => patch("about", { ...draft.about, valuesAr: v.split(",").map((s) => s.trim()).filter(Boolean) })}
           labelEn="Values (EN, comma-sep)" valueEn={draft.about.valuesEn.join(", ")}
           onChangeEn={(v) => patch("about", { ...draft.about, valuesEn: v.split(",").map((s) => s.trim()).filter(Boolean) })}
+        />
+        <MediaGallery
+          items={draft.about.media}
+          onChange={(media) => patch("about", { ...draft.about, media })}
+          flash={flash}
         />
       </Section>
 
@@ -387,7 +392,8 @@ function AchievementsEditor({
       ...rs,
       {
         id: tempId, year: "", titleAr: "", titleEn: "", descAr: "", descEn: "",
-        icon: "spark", sortOrder: rs.length + 1, _isNew: true, _dirty: true,
+        icon: "spark", imageUrl: "", videoUrl: "",
+        sortOrder: rs.length + 1, _isNew: true, _dirty: true,
       },
     ]);
   }
@@ -397,7 +403,9 @@ function AchievementsEditor({
     try {
       const payload = {
         year: row.year, titleAr: row.titleAr, titleEn: row.titleEn,
-        descAr: row.descAr, descEn: row.descEn, icon: row.icon, sortOrder: row.sortOrder,
+        descAr: row.descAr, descEn: row.descEn, icon: row.icon,
+        imageUrl: row.imageUrl, videoUrl: row.videoUrl,
+        sortOrder: row.sortOrder,
       };
       if (row._isNew) {
         const res = await fetch("/api/admin/achievements", {
@@ -473,6 +481,20 @@ function AchievementsEditor({
             <TextareaField label="Desc (AR)" value={row.descAr} onChange={(v) => update(row.id, { descAr: v })} />
             <TextareaField label="Desc (EN)" value={row.descEn} onChange={(v) => update(row.id, { descEn: v })} />
           </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            <UrlUploadField
+              label="Certificate / image URL"
+              accept="image/*"
+              value={row.imageUrl}
+              onChange={(v) => update(row.id, { imageUrl: v })}
+            />
+            <UrlUploadField
+              label="Video URL"
+              accept="video/*"
+              value={row.videoUrl}
+              onChange={(v) => update(row.id, { videoUrl: v })}
+            />
+          </div>
           <div className="flex items-center justify-end gap-2">
             <button onClick={() => deleteRow(row)} disabled={busy} className="text-xs px-3 py-1.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60">
               Delete
@@ -483,6 +505,214 @@ function AchievementsEditor({
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---------------- Media: upload + URL input ---------------- */
+
+async function uploadFile(file: File): Promise<string> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `Upload failed (${res.status})`);
+  }
+  const data = (await res.json()) as { url: string };
+  return data.url;
+}
+
+function UrlUploadField({
+  label, value, onChange, accept,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  accept: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const isVideo = accept.startsWith("video");
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setBusy(true); setErr(null);
+    try {
+      const url = await uploadFile(f);
+      onChange(url);
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-xs font-medium text-[var(--color-ink-soft)]">{label}</label>
+      <div className="mt-1 flex items-center gap-2">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="https://… or upload"
+          className="flex-1 rounded-lg border border-[var(--color-orange-300)]/50 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-orange-500)]"
+          dir="ltr"
+        />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="shrink-0 text-xs px-3 py-2 rounded-lg border border-[var(--color-orange-300)]/60 bg-white/70 hover:bg-[var(--color-orange-50)] disabled:opacity-60"
+        >
+          {busy ? "Uploading…" : "Upload"}
+        </button>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="shrink-0 text-xs px-2 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50"
+          >
+            Clear
+          </button>
+        )}
+        <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={onPick} />
+      </div>
+      {err && <p className="mt-1 text-xs text-red-700">{err}</p>}
+      {value && !err && (
+        <div className="mt-2">
+          {isVideo ? (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video src={value} controls className="max-h-40 rounded-lg border border-[var(--color-orange-300)]/40" />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={value} alt="preview" className="max-h-40 rounded-lg border border-[var(--color-orange-300)]/40 object-contain" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type MediaItem = SiteContent["about"]["media"][number];
+
+function MediaGallery({
+  items,
+  onChange,
+  flash,
+}: {
+  items: MediaItem[];
+  onChange: (items: MediaItem[]) => void;
+  flash: (msg: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setBusy(true);
+    try {
+      const added: MediaItem[] = [];
+      for (const f of Array.from(files)) {
+        const url = await uploadFile(f);
+        added.push({ url, type: f.type.startsWith("video") ? "video" : "image" });
+      }
+      onChange([...items, ...added]);
+      flash("Uploaded");
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  function addByUrl() {
+    const url = prompt("Paste a public image or video URL");
+    if (!url) return;
+    const lower = url.toLowerCase();
+    const type: MediaItem["type"] =
+      /\.(mp4|webm|mov|m4v)$/i.test(lower) ? "video" : "image";
+    onChange([...items, { url: url.trim(), type }]);
+  }
+
+  function updateItem(i: number, patch: Partial<MediaItem>) {
+    onChange(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+  }
+
+  function removeItem(i: number) {
+    onChange(items.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <label className="block text-xs font-medium text-[var(--color-ink-soft)]">Media (images / videos)</label>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={addByUrl}
+            className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 hover:bg-[var(--color-orange-50)]"
+          >
+            + URL
+          </button>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 hover:bg-[var(--color-orange-50)] disabled:opacity-60"
+          >
+            {busy ? "Uploading…" : "+ Upload"}
+          </button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="mt-2 text-xs text-[var(--color-ink-soft)]">No media yet. Upload certificates, photos, or short videos.</p>
+      ) : (
+        <ul className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
+          {items.map((m, i) => (
+            <li key={i} className="rounded-xl border border-[var(--color-orange-300)]/40 bg-white p-2 space-y-2">
+              {m.type === "video" ? (
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <video src={m.url} controls className="w-full h-32 rounded-lg object-cover" />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={m.url} alt={m.caption ?? ""} className="w-full h-32 rounded-lg object-cover" />
+              )}
+              <input
+                type="text"
+                value={m.caption ?? ""}
+                onChange={(e) => updateItem(i, { caption: e.target.value })}
+                placeholder="Caption (optional)"
+                className="w-full rounded-md border border-[var(--color-orange-300)]/40 bg-white px-2 py-1 text-xs"
+              />
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[var(--color-ink-soft)]">{m.type}</span>
+                <button
+                  type="button"
+                  onClick={() => removeItem(i)}
+                  className="px-2 py-0.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
