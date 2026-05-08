@@ -5,12 +5,23 @@ import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 
+function splitParagraphs(body: string): string[] {
+  return body
+    .split(/(?<=[.؟!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 export default function About({ lang, content }: { lang: Lang; content: SiteContent }) {
   const a = content.about;
   const title = lang === "ar" ? a.titleAr : a.titleEn;
   const body = lang === "ar" ? a.bodyAr : a.bodyEn;
   const values = lang === "ar" ? a.valuesAr : a.valuesEn;
   const viewMore = dict[lang].ui.viewMore;
+
+  const paragraphs = splitParagraphs(body);
+  const [lead, ...rest] = paragraphs;
+  const preview = rest.slice(0, 2);
 
   return (
     <div className="absolute inset-0 flex items-center justify-center px-8 md:px-16">
@@ -23,20 +34,31 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
         >
           {title}
         </motion.span>
-        <motion.p
+        <motion.h2
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.6 }}
-          className="mt-6 text-2xl md:text-4xl leading-relaxed text-[var(--color-ink)]"
+          transition={{ delay: 0.1, duration: 0.6 }}
+          className="mt-4 text-3xl md:text-5xl font-semibold tracking-tight text-[var(--color-ink)]"
         >
-          {body}
-        </motion.p>
+          {lead ?? body}
+        </motion.h2>
+
+        {preview.length > 0 && (
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.6 }}
+            className="mt-6 text-base md:text-lg leading-relaxed text-[var(--color-ink-soft)]"
+          >
+            {preview.join(" ")}
+          </motion.p>
+        )}
 
         <motion.ul
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.45, duration: 0.6 }}
-          className="mt-12 flex flex-wrap gap-3"
+          className="mt-10 flex flex-wrap gap-3"
         >
           {values.map((v) => (
             <li
