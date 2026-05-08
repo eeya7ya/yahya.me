@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { AchievementRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
-import { parseAchievementMedia } from "@/lib/achievements";
+import { parseAchievementMedia, type AchievementMedia } from "@/lib/achievements";
+import MediaLightbox from "@/components/MediaLightbox";
 
 const HOME_PREVIEW_COUNT = 2;
 
@@ -31,6 +33,7 @@ export default function Achievements({
   const viewMore = dict[lang].ui.viewMore;
   const previewItems = items.slice(-HOME_PREVIEW_COUNT);
   const hasMore = items.length > previewItems.length;
+  const [lightbox, setLightbox] = useState<{ media: AchievementMedia[]; title: string } | null>(null);
 
   return (
     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center px-6 md:px-12 pt-20 md:pt-24 pb-12">
@@ -63,7 +66,19 @@ export default function Achievements({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.45, delay: i * 0.06 }}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_18px_50px_-20px_rgba(217,112,26,0.4)] transition"
+                onClick={() => {
+                  if (hasMedia) setLightbox({ media, title: t });
+                }}
+                role={hasMedia ? "button" : undefined}
+                tabIndex={hasMedia ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (!hasMedia) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setLightbox({ media, title: t });
+                  }
+                }}
+                className={`group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_18px_50px_-20px_rgba(217,112,26,0.4)] transition ${hasMedia ? "cursor-pointer" : ""}`}
               >
                 {hasMedia && cover ? (
                   <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
@@ -71,8 +86,10 @@ export default function Achievements({
                       // eslint-disable-next-line jsx-a11y/media-has-caption
                       <video
                         src={cover.url}
-                        controls
-                        className="absolute inset-0 size-full object-cover bg-black"
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
                       />
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
@@ -136,6 +153,13 @@ export default function Achievements({
           </div>
         )}
       </div>
+
+      <MediaLightbox
+        open={lightbox !== null}
+        media={lightbox?.media ?? []}
+        title={lightbox?.title}
+        onClose={() => setLightbox(null)}
+      />
     </div>
   );
 }
