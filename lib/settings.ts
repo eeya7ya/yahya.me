@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import { ensureSchema, getDb } from "./db";
 import { siteSettings } from "./schema";
 import { dict } from "./i18n";
 
@@ -171,6 +171,7 @@ export async function loadContent(): Promise<SiteContent> {
   const db = getDb();
   if (!db) return defaultContent;
   try {
+    await ensureSchema();
     const rows = await db.select().from(siteSettings);
     const map = new Map(rows.map((r) => [r.key, r.value]));
     return applyOverrides(defaultContent, map);
@@ -182,6 +183,7 @@ export async function loadContent(): Promise<SiteContent> {
 export async function saveContent(updates: Partial<Record<SettingKey, string>>) {
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL not set");
+  await ensureSchema();
   const entries = Object.entries(updates).filter(([, v]) => typeof v === "string") as [SettingKey, string][];
   if (entries.length === 0) return;
   // upsert one-by-one to keep it simple and portable

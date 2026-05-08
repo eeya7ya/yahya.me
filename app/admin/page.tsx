@@ -1,5 +1,5 @@
 import { asc } from "drizzle-orm";
-import { getDb } from "@/lib/db";
+import { ensureSchema, getDb } from "@/lib/db";
 import { roadmap, achievements } from "@/lib/schema";
 import { loadContent } from "@/lib/settings";
 import { seedRoadmap, seedAchievements } from "@/lib/seed-data";
@@ -15,6 +15,7 @@ export default async function AdminHome() {
   let dbConnected = false;
   if (db) {
     try {
+      await ensureSchema();
       const [r, a] = await Promise.all([
         db.select().from(roadmap).orderBy(asc(roadmap.sortOrder)),
         db.select().from(achievements).orderBy(asc(achievements.sortOrder)),
@@ -22,7 +23,8 @@ export default async function AdminHome() {
       if (r.length) roadmapRows = r;
       if (a.length) achievementRows = a;
       dbConnected = true;
-    } catch {
+    } catch (err) {
+      console.error("admin: db init failed", err);
       dbConnected = false;
     }
   }

@@ -26,7 +26,7 @@ export default function AdminPanel({ content, roadmap, achievements, dbConnected
 
   function flash(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(null), 2200);
+    setTimeout(() => setToast(null), 4000);
   }
 
   async function logout() {
@@ -131,11 +131,11 @@ function ContentEditor({
         headers: { "content-type": "application/json" },
         body: JSON.stringify(flat),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw new Error(await readError(res));
       flash("Saved");
       refresh();
     } catch (e) {
-      flash("Save failed");
+      flash(`Save failed: ${e instanceof Error ? e.message : String(e)}`);
       console.error(e);
     } finally {
       setBusy(false);
@@ -246,6 +246,15 @@ function ContentEditor({
   );
 }
 
+async function readError(res: Response): Promise<string> {
+  const text = await res.text();
+  try {
+    const j = JSON.parse(text);
+    if (j && typeof j.error === "string") return j.error;
+  } catch {}
+  return text || `HTTP ${res.status}`;
+}
+
 /* ---------------- Roadmap editor ---------------- */
 
 type EditorRow<T> = T & { _isNew?: boolean; _dirty?: boolean };
@@ -291,18 +300,18 @@ function RoadmapEditor({
         const res = await fetch("/api/admin/roadmap", {
           method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) throw new Error(await readError(res));
       } else {
         const res = await fetch(`/api/admin/roadmap/${row.id}`, {
           method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) throw new Error(await readError(res));
       }
       flash("Saved");
       refresh();
     } catch (e) {
       console.error(e);
-      flash("Save failed");
+      flash(`Save failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setBusy(false);
     }
@@ -317,13 +326,13 @@ function RoadmapEditor({
     setBusy(true);
     try {
       const res = await fetch(`/api/admin/roadmap/${row.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw new Error(await readError(res));
       setRows((rs) => rs.filter((r) => r.id !== row.id));
       flash("Deleted");
       refresh();
     } catch (e) {
       console.error(e);
-      flash("Delete failed");
+      flash(`Delete failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setBusy(false);
     }
@@ -411,18 +420,18 @@ function AchievementsEditor({
         const res = await fetch("/api/admin/achievements", {
           method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) throw new Error(await readError(res));
       } else {
         const res = await fetch(`/api/admin/achievements/${row.id}`, {
           method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) throw new Error(await readError(res));
       }
       flash("Saved");
       refresh();
     } catch (e) {
       console.error(e);
-      flash("Save failed");
+      flash(`Save failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setBusy(false);
     }
@@ -437,13 +446,13 @@ function AchievementsEditor({
     setBusy(true);
     try {
       const res = await fetch(`/api/admin/achievements/${row.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw new Error(await readError(res));
       setRows((rs) => rs.filter((r) => r.id !== row.id));
       flash("Deleted");
       refresh();
     } catch (e) {
       console.error(e);
-      flash("Delete failed");
+      flash(`Delete failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setBusy(false);
     }

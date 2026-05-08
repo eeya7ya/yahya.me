@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { asc } from "drizzle-orm";
-import { getDb } from "@/lib/db";
+import { ensureSchema, getDb } from "@/lib/db";
 import { roadmap } from "@/lib/schema";
 
 export const runtime = "nodejs";
@@ -9,13 +9,23 @@ export const runtime = "nodejs";
 export async function GET() {
   const db = getDb();
   if (!db) return NextResponse.json({ error: "no_db" }, { status: 500 });
-  const rows = await db.select().from(roadmap).orderBy(asc(roadmap.sortOrder));
-  return NextResponse.json(rows);
+  try {
+    await ensureSchema();
+    const rows = await db.select().from(roadmap).orderBy(asc(roadmap.sortOrder));
+    return NextResponse.json(rows);
+  } catch (err) {
+    return NextResponse.json({ error: errMsg(err) }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {
   const db = getDb();
   if (!db) return NextResponse.json({ error: "no_db" }, { status: 500 });
+  try {
+    await ensureSchema();
+  } catch (err) {
+    return NextResponse.json({ error: errMsg(err) }, { status: 500 });
+  }
   const body = await req.json();
   const row = {
     year: String(body.year ?? ""),
@@ -25,8 +35,16 @@ export async function POST(req: Request) {
     descEn: String(body.descEn ?? ""),
     sortOrder: Number.isFinite(body.sortOrder) ? Number(body.sortOrder) : 0,
   };
-  const [created] = await db.insert(roadmap).values(row).returning();
-  revalidatePath("/");
-  revalidatePath("/roadmap");
-  return NextResponse.json(created);
+  try {
+    const [created] = await db.insert(roadmap).values(row).returning();
+    revalidatePath("/");
+    revalidatePath("/roadmap");
+    return NextResponse.json(created);
+  } catch (err) {
+    return NextResponse.json({ error: errMsg(err) }, { status: 500 });
+  }
+}
+
+function errMsg(err: unknown) {
+  return err instanceof Error ? err.message : String(err);
 }

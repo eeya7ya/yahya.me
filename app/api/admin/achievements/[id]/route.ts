@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
-import { getDb } from "@/lib/db";
+import { ensureSchema, getDb } from "@/lib/db";
 import { achievements } from "@/lib/schema";
 
 export const runtime = "nodejs";
@@ -27,10 +27,15 @@ export async function PUT(req: Request, ctx: Ctx) {
     videoUrl: String(body.videoUrl ?? ""),
     sortOrder: Number.isFinite(body.sortOrder) ? Number(body.sortOrder) : 0,
   };
-  const [updated] = await db.update(achievements).set(updates).where(eq(achievements.id, numId)).returning();
-  revalidatePath("/");
-  revalidatePath("/achievements");
-  return NextResponse.json(updated);
+  try {
+    await ensureSchema();
+    const [updated] = await db.update(achievements).set(updates).where(eq(achievements.id, numId)).returning();
+    revalidatePath("/");
+    revalidatePath("/achievements");
+    return NextResponse.json(updated);
+  } catch (err) {
+    return NextResponse.json({ error: errMsg(err) }, { status: 500 });
+  }
 }
 
 export async function DELETE(_req: Request, ctx: Ctx) {
@@ -39,8 +44,17 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   const numId = Number(id);
   if (!Number.isFinite(numId)) return NextResponse.json({ error: "bad_id" }, { status: 400 });
-  await db.delete(achievements).where(eq(achievements.id, numId));
-  revalidatePath("/");
-  revalidatePath("/achievements");
-  return NextResponse.json({ ok: true });
+  try {
+    await ensureSchema();
+    await db.delete(achievements).where(eq(achievements.id, numId));
+    revalidatePath("/");
+    revalidatePath("/achievements");
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return NextResponse.json({ error: errMsg(err) }, { status: 500 });
+  }
+}
+
+function errMsg(err: unknown) {
+  return err instanceof Error ? err.message : String(err);
 }
