@@ -36,7 +36,7 @@ export default function Achievements({
   const [lightbox, setLightbox] = useState<{ media: AchievementMedia[]; title: string } | null>(null);
 
   return (
-    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center px-4 sm:px-6 md:px-12 pt-20 md:pt-24 pb-16 md:pb-12">
+    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center px-4 sm:px-6 md:px-12 pt-20 md:pt-24 pb-20 md:pb-12">
       <div className="w-full max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}

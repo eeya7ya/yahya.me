@@ -183,25 +183,27 @@ export default function Deck({ content, roadmap, achievements }: Props) {
 
       {/* Mobile-only: horizontal dot indicator */}
       <nav
-        className="md:hidden absolute bottom-3 inset-x-0 z-30 flex items-center justify-center gap-2"
+        className="md:hidden absolute bottom-4 inset-x-0 z-30 flex items-center justify-center"
         aria-label="Slide navigation"
       >
-        {navLabels.map((label, i) => {
-          const active = i === index;
-          return (
-            <button
-              key={label}
-              onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i); }}
-              aria-label={label}
-              aria-current={active ? "true" : undefined}
-              className={`rounded-full transition-all duration-300 ${
-                active
-                  ? "w-6 h-1.5 bg-[var(--color-orange-500)]"
-                  : "size-1.5 bg-[var(--color-ink)]/25"
-              }`}
-            />
-          );
-        })}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur border border-[var(--color-orange-300)]/50 shadow-sm">
+          {navLabels.map((label, i) => {
+            const active = i === index;
+            return (
+              <button
+                key={label}
+                onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i); }}
+                aria-label={label}
+                aria-current={active ? "true" : undefined}
+                className={`rounded-full transition-all duration-300 ${
+                  active
+                    ? "w-5 h-1.5 bg-[var(--color-orange-500)]"
+                    : "size-1.5 bg-[var(--color-ink)]/25"
+                }`}
+              />
+            );
+          })}
+        </div>
       </nav>
     </main>
   );

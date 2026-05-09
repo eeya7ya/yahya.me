@@ -27,7 +27,7 @@ export default function Contact({
   ].filter((l) => l.href && l.href.trim() !== "");
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 sm:px-8 md:px-16 pb-12 md:pb-0 text-center">
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 sm:px-8 md:px-16 pb-20 md:pb-0 text-center">
       <motion.span
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
