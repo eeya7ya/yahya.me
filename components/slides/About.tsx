@@ -12,6 +12,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
   const body = isRtl ? a.bodyAr : a.bodyEn;
   const values = isRtl ? a.valuesAr : a.valuesEn;
   const viewMore = dict[lang].ui.viewMore;
+  const prefix = lang === "ar" ? "/ar" : "";
   const media = (a.media ?? []).slice(0, 1);
 
   return (
@@ -72,7 +73,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             className="mt-8"
           >
             <Link
-              href="/about"
+              href={`${prefix}/about`}
               className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
             >
               <span>{viewMore}</span>

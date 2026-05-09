@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { ensureSchema, getDb } from "./db";
 import { siteSettings } from "./schema";
 import { dict } from "./i18n";
@@ -170,7 +171,7 @@ export function contentToFlat(c: SiteContent): Record<SettingKey, string> {
   };
 }
 
-export async function loadContent(): Promise<SiteContent> {
+export const loadContent = cache(async function loadContent(): Promise<SiteContent> {
   const db = getDb();
   if (!db) return defaultContent;
   try {
@@ -181,7 +182,7 @@ export async function loadContent(): Promise<SiteContent> {
   } catch {
     return defaultContent;
   }
-}
+});
 
 export async function saveContent(updates: Partial<Record<SettingKey, string>>) {
   const db = getDb();

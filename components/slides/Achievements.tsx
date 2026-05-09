@@ -31,6 +31,7 @@ export default function Achievements({
   const title = lang === "ar" ? a.titleAr : a.titleEn;
   const subtitle = lang === "ar" ? a.subtitleAr : a.subtitleEn;
   const viewMore = dict[lang].ui.viewMore;
+  const prefix = lang === "ar" ? "/ar" : "";
   const previewItems = items.slice(-HOME_PREVIEW_COUNT);
   const hasMore = items.length > previewItems.length;
   const [lightbox, setLightbox] = useState<{ media: AchievementMedia[]; title: string } | null>(null);
@@ -144,7 +145,7 @@ export default function Achievements({
         {hasMore && (
           <div className="mt-6 md:mt-8 flex justify-center">
             <Link
-              href="/achievements"
+              href={`${prefix}/achievements`}
               className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
             >
               <span>{viewMore}</span>

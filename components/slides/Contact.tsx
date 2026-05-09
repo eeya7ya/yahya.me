@@ -18,6 +18,7 @@ export default function Contact({
   const title = lang === "ar" ? c.titleAr : c.titleEn;
   const subtitle = lang === "ar" ? c.subtitleAr : c.subtitleEn;
   const viewMore = dict[lang].ui.viewMore;
+  const prefix = lang === "ar" ? "/ar" : "";
 
   const links = [
     { key: "email" as const,    href: c.email.startsWith("mailto:") ? c.email : `mailto:${c.email}`, icon: "✉" },
@@ -74,7 +75,7 @@ export default function Contact({
         className="mt-8"
       >
         <Link
-          href="/contact"
+          href={`${prefix}/contact`}
           className="inline-flex items-center gap-2 rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur text-[var(--color-orange-600)] text-sm font-semibold px-5 py-2.5 hover:bg-[var(--color-orange-50)] transition"
         >
           <span>{viewMore}</span>
