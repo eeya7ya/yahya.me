@@ -33,7 +33,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
         initial={{ scale: 1.04, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        className={`absolute inset-y-0 ${isRtl ? "left-0" : "right-0"} w-full md:w-[58%] lg:w-[52%] z-0 pointer-events-none`}
+        className={`absolute inset-x-0 bottom-0 h-[55%] md:inset-y-0 md:h-auto ${isRtl ? "md:left-0" : "md:right-0"} md:inset-x-auto md:w-[58%] lg:w-[52%] z-0 pointer-events-none`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -46,12 +46,12 @@ export default function Hero({ lang, t, content, onNext }: Props) {
       </motion.div>
 
       {/* Orange UI — name + tagline, sits ABOVE the photo */}
-      <div className="relative z-10 flex h-full flex-col justify-center px-8 md:px-16 lg:px-24 py-20 md:max-w-[60%]">
+      <div className="relative z-10 flex h-full flex-col justify-center md:justify-center pt-20 pb-[55%] px-6 sm:px-8 md:px-16 lg:px-24 md:py-20 md:pb-20 md:max-w-[60%]">
         <motion.span
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.6 }}
-          className="text-base md:text-xl lg:text-2xl text-[var(--color-orange-600)] tracking-widest uppercase"
+          className="text-sm sm:text-base md:text-xl lg:text-2xl text-[var(--color-orange-600)] tracking-widest uppercase"
         >
           {greeting}
         </motion.span>
@@ -60,7 +60,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="mt-3 text-6xl md:text-8xl lg:text-9xl font-bold leading-tight text-[var(--color-ink)]"
+          className="mt-3 text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold leading-[1.05] text-[var(--color-ink)]"
         >
           {name}
         </motion.h1>
@@ -69,7 +69,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-4 text-xl md:text-2xl lg:text-3xl text-[var(--color-ink-soft)]"
+          className="mt-4 text-lg sm:text-xl md:text-2xl lg:text-3xl text-[var(--color-ink-soft)]"
         >
           {role}
         </motion.p>
@@ -79,10 +79,10 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6 }}
-          className="mt-10 flex items-center gap-2"
+          className="mt-6 md:mt-10 flex items-center gap-2"
         >
           <span aria-hidden className="size-2.5 rounded-full bg-[var(--color-orange-500)] shadow-[0_0_0_4px_rgba(217,112,26,0.15)]" />
-          <span className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur px-4 py-1.5 text-base md:text-lg font-semibold tracking-wide text-[var(--color-orange-600)]">
+          <span className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur px-3 py-1 md:px-4 md:py-1.5 text-sm sm:text-base md:text-lg font-semibold tracking-wide text-[var(--color-orange-600)]">
             {tagline}
           </span>
         </motion.div>
@@ -109,7 +109,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.5 }}
-        className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 z-20 group inline-flex flex-col items-center gap-2 text-xs md:text-sm tracking-[0.2em] uppercase text-[var(--color-ink-soft)] hover:text-[var(--color-orange-600)] transition"
+        className="absolute bottom-5 md:bottom-12 left-1/2 -translate-x-1/2 z-20 group inline-flex flex-col items-center gap-1.5 md:gap-2 text-[10px] md:text-sm tracking-[0.2em] uppercase text-[var(--color-ink-soft)] hover:text-[var(--color-orange-600)] transition"
       >
         <span>{cta}</span>
         <span

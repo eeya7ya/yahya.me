@@ -18,7 +18,7 @@ export default function SiteHeader({ current }: { current: Current }) {
 
   return (
     <header className="sticky top-0 z-30 backdrop-blur bg-[var(--color-cream)]/70 border-b border-[var(--color-orange-300)]/30">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 px-6 md:px-10 py-4">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 md:gap-4 px-4 sm:px-6 md:px-10 py-3 md:py-4">
         <Link href="/" className="text-sm md:text-base font-medium tracking-wide text-[var(--color-ink)]/80 hover:text-[var(--color-orange-600)] transition">
           {lang === "ar" ? "يحيى خالد" : "Yahya Khaled"}
         </Link>

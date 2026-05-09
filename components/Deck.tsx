@@ -134,9 +134,9 @@ export default function Deck({ content, roadmap, achievements }: Props) {
         </motion.section>
       </AnimatePresence>
 
-      {/* Side rail — modular dots threaded by a vertical guide */}
+      {/* Side rail — modular dots threaded by a vertical guide (desktop only) */}
       <nav
-        className={`absolute top-1/2 -translate-y-1/2 z-30 ${lang === "ar" ? "left-5 md:left-8" : "right-5 md:right-8"}`}
+        className={`hidden md:block absolute top-1/2 -translate-y-1/2 z-30 ${lang === "ar" ? "md:left-8" : "md:right-8"}`}
         aria-label="Slide navigation"
       >
         <div className="relative flex flex-col items-center gap-6 py-3">
@@ -179,6 +179,29 @@ export default function Deck({ content, roadmap, achievements }: Props) {
             );
           })}
         </div>
+      </nav>
+
+      {/* Mobile-only: horizontal dot indicator */}
+      <nav
+        className="md:hidden absolute bottom-3 inset-x-0 z-30 flex items-center justify-center gap-2"
+        aria-label="Slide navigation"
+      >
+        {navLabels.map((label, i) => {
+          const active = i === index;
+          return (
+            <button
+              key={label}
+              onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i); }}
+              aria-label={label}
+              aria-current={active ? "true" : undefined}
+              className={`rounded-full transition-all duration-300 ${
+                active
+                  ? "w-6 h-1.5 bg-[var(--color-orange-500)]"
+                  : "size-1.5 bg-[var(--color-ink)]/25"
+              }`}
+            />
+          );
+        })}
       </nav>
     </main>
   );
