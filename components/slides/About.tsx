@@ -92,10 +92,10 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             <figure className="relative rounded-3xl overflow-hidden border border-[var(--color-orange-300)]/50 bg-white/60 shadow-[0_30px_60px_-30px_rgba(217,112,26,0.35)]">
               {media[0].type === "video" ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
-                <video src={media[0].url} controls className="w-full aspect-[16/10] md:aspect-[4/5] object-cover bg-black" />
+                <video src={media[0].url} controls className="w-full aspect-[3/4] md:aspect-[4/5] object-cover object-top md:object-center bg-black" />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={media[0].url} alt={media[0].caption ?? ""} className="w-full aspect-[16/10] md:aspect-[4/5] object-cover" />
+                <img src={media[0].url} alt={media[0].caption ?? ""} className="w-full aspect-[3/4] md:aspect-[4/5] object-cover object-top md:object-center" />
               )}
               {media[0].caption && (
                 <figcaption className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/55 to-transparent text-sm text-white">
