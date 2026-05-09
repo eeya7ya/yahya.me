@@ -15,7 +15,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
   const media = (a.media ?? []).slice(0, 1);
 
   return (
-    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex items-center justify-center px-4 sm:px-6 md:px-12 lg:px-20 pt-20 pb-16 md:py-24">
+    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex items-start md:items-center justify-center px-4 sm:px-6 md:px-12 lg:px-20 pt-24 pb-24 md:py-24">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 lg:gap-14 items-center">
         {/* Text column */}
         <div className={`lg:col-span-7 ${isRtl ? "lg:order-2" : ""}`}>

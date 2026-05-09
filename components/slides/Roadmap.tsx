@@ -23,7 +23,7 @@ export default function Roadmap({
   const [openId, setOpenId] = useState<number | string | null>(null);
 
   return (
-    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center justify-start md:justify-center px-4 sm:px-6 md:px-16 pt-20 pb-16 md:py-24">
+    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center justify-start md:justify-center px-4 sm:px-6 md:px-16 pt-20 pb-20 md:py-24">
       <div className="w-full max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}

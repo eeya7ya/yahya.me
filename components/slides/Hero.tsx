@@ -46,7 +46,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
       </motion.div>
 
       {/* Orange UI — name + tagline, sits ABOVE the photo */}
-      <div className="relative z-10 flex h-full flex-col justify-center md:justify-center pt-20 pb-[55%] px-6 sm:px-8 md:px-16 lg:px-24 md:py-20 md:pb-20 md:max-w-[60%]">
+      <div className="relative z-10 flex h-full flex-col justify-start md:justify-center pt-24 pb-[45%] px-6 sm:px-8 md:px-16 lg:px-24 md:py-20 md:pb-20 md:pt-20 md:max-w-[60%]">
         <motion.span
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -109,7 +109,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.5 }}
-        className="absolute bottom-5 md:bottom-12 left-1/2 -translate-x-1/2 z-20 group inline-flex flex-col items-center gap-1.5 md:gap-2 text-[10px] md:text-sm tracking-[0.2em] uppercase text-[var(--color-ink-soft)] hover:text-[var(--color-orange-600)] transition"
+        className="hidden md:inline-flex absolute md:bottom-12 left-1/2 -translate-x-1/2 z-20 group flex-col items-center gap-2 text-sm tracking-[0.2em] uppercase text-[var(--color-ink-soft)] hover:text-[var(--color-orange-600)] transition"
       >
         <span>{cta}</span>
         <span
