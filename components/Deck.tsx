@@ -26,7 +26,21 @@ export default function Deck({ content, roadmap, achievements }: Props) {
   const [direction, setDirection] = useState(1);
   const lockRef = useRef(false);
   const touchStartY = useRef<number | null>(null);
+  const touchScrollEl = useRef<HTMLElement | null>(null);
+  const touchStartScrollTop = useRef<number>(0);
   const t = dict[lang];
+
+  const findScrollableAncestor = (el: HTMLElement | null): HTMLElement | null => {
+    let cur = el;
+    while (cur && cur !== document.body) {
+      if (cur.scrollHeight > cur.clientHeight + 1) {
+        const oy = getComputedStyle(cur).overflowY;
+        if (oy === "auto" || oy === "scroll") return cur;
+      }
+      cur = cur.parentElement;
+    }
+    return null;
+  };
 
   const slides: ReactNode[] = [
     <Hero key="hero" lang={lang} t={t} content={content} onNext={() => go(1)} />,
@@ -78,12 +92,28 @@ export default function Deck({ content, roadmap, achievements }: Props) {
       else if (e.key === "Home") { e.preventDefault(); setIndex(0); }
       else if (e.key === "End") { e.preventDefault(); setIndex(slides.length - 1); }
     };
-    const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY;
+      const scrollable = findScrollableAncestor(e.target as HTMLElement);
+      touchScrollEl.current = scrollable;
+      touchStartScrollTop.current = scrollable?.scrollTop ?? 0;
+    };
     const onTouchEnd = (e: TouchEvent) => {
       if (touchStartY.current === null) return;
       const dy = touchStartY.current - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > TOUCH_THRESHOLD) go(dy > 0 ? 1 : -1);
+      const scrollEl = touchScrollEl.current;
       touchStartY.current = null;
+      touchScrollEl.current = null;
+      if (Math.abs(dy) <= TOUCH_THRESHOLD) return;
+      if (scrollEl) {
+        const scrolled = Math.abs(scrollEl.scrollTop - touchStartScrollTop.current) > 2;
+        if (scrolled) return;
+        const atTop = scrollEl.scrollTop <= 0;
+        const atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
+        if (dy > 0 && !atBottom) return;
+        if (dy < 0 && !atTop) return;
+      }
+      go(dy > 0 ? 1 : -1);
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
