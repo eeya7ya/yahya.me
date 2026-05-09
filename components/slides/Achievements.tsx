@@ -78,7 +78,7 @@ export default function Achievements({
                     setLightbox({ media, title: t });
                   }
                 }}
-                className={`group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_18px_50px_-20px_rgba(217,112,26,0.4)] transition ${hasMedia ? "cursor-pointer" : ""}`}
+                className={`${i >= 1 ? "hidden sm:flex" : "flex"} group relative flex-col overflow-hidden rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_18px_50px_-20px_rgba(217,112,26,0.4)] transition ${hasMedia ? "cursor-pointer" : ""}`}
               >
                 {hasMedia && cover ? (
                   <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
