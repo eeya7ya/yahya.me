@@ -20,12 +20,12 @@ export default function ContactFull({ content }: { content: SiteContent }) {
   ].filter((l) => l.href && l.href.trim() !== "");
 
   return (
-    <section className="max-w-3xl mx-auto px-6 md:px-10 py-20 md:py-28 text-center">
+    <section className="max-w-3xl mx-auto px-4 sm:px-6 md:px-10 py-14 md:py-28 text-center">
       <motion.span
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-xs tracking-[0.3em] uppercase text-[var(--color-orange-600)]"
+        className="text-[11px] md:text-xs tracking-[0.3em] uppercase text-[var(--color-orange-600)]"
       >
         {subtitle}
       </motion.span>
@@ -33,7 +33,7 @@ export default function ContactFull({ content }: { content: SiteContent }) {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.6 }}
-        className="mt-3 text-5xl md:text-7xl font-bold text-[var(--color-ink)]"
+        className="mt-3 text-4xl sm:text-5xl md:text-7xl font-bold text-[var(--color-ink)]"
       >
         {title}
       </motion.h2>
@@ -42,7 +42,7 @@ export default function ContactFull({ content }: { content: SiteContent }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="mt-12 flex flex-wrap items-center justify-center gap-3 md:gap-4"
+        className="mt-8 md:mt-12 flex flex-wrap items-center justify-center gap-2.5 md:gap-4"
       >
         {links.map((l) => (
           <a
@@ -50,7 +50,7 @@ export default function ContactFull({ content }: { content: SiteContent }) {
             href={l.href}
             target={l.href.startsWith("http") ? "_blank" : undefined}
             rel="noreferrer"
-            className="group inline-flex items-center gap-3 rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 backdrop-blur px-6 py-3 text-sm md:text-base font-medium text-[var(--color-ink)] hover:border-[var(--color-orange-500)] hover:text-[var(--color-orange-600)] transition"
+            className="group inline-flex items-center gap-2.5 md:gap-3 rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 backdrop-blur px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-medium text-[var(--color-ink)] hover:border-[var(--color-orange-500)] hover:text-[var(--color-orange-600)] transition"
           >
             <span className="grid place-items-center size-6 rounded-full bg-[var(--color-orange-50)] text-[var(--color-orange-600)] text-xs">
               {l.icon}

@@ -36,7 +36,7 @@ export default function Achievements({
   const [lightbox, setLightbox] = useState<{ media: AchievementMedia[]; title: string } | null>(null);
 
   return (
-    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center px-6 md:px-12 pt-20 md:pt-24 pb-12">
+    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center px-4 sm:px-6 md:px-12 pt-20 md:pt-24 pb-16 md:pb-12">
       <div className="w-full max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -47,7 +47,7 @@ export default function Achievements({
           <span className="text-[11px] tracking-[0.3em] uppercase text-[var(--color-orange-600)] font-semibold">
             {subtitle}
           </span>
-          <h2 className="mt-2 text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-ink)] leading-[1.2]">
+          <h2 className="mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-ink)] leading-[1.2]">
             {title}
           </h2>
         </motion.div>

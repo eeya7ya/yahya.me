@@ -28,15 +28,15 @@ export default function AchievementsFull({
   const subtitle = lang === "ar" ? a.subtitleAr : a.subtitleEn;
 
   return (
-    <section className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-24">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-12 md:py-24">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-10 md:mb-12 text-center"
+        className="mb-8 md:mb-12 text-center"
       >
         <span className="text-[11px] tracking-[0.3em] uppercase text-[var(--color-orange-600)] font-semibold">{subtitle}</span>
-        <h2 className="mt-2 text-4xl md:text-5xl font-bold text-[var(--color-ink)] leading-[1.2]">{title}</h2>
+        <h2 className="mt-2 text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-ink)] leading-[1.2]">{title}</h2>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
@@ -149,7 +149,7 @@ function AchievementCard({
           </div>
         )}
 
-        <div className="flex items-start gap-4 p-6 md:p-7">
+        <div className="flex items-start gap-3 md:gap-4 p-4 sm:p-5 md:p-7">
           {!hasMedia && (
             <span className="grid place-items-center size-14 shrink-0 rounded-xl bg-[var(--color-orange-50)] text-2xl border border-[var(--color-orange-300)]/40">
               {ICONS[row.icon] ?? ICONS.spark}
@@ -161,11 +161,11 @@ function AchievementCard({
                 {row.year}
               </span>
             )}
-            <h3 className={`${hasMedia ? "" : "mt-1"} text-xl md:text-2xl font-semibold text-[var(--color-ink)] leading-snug`}>
+            <h3 className={`${hasMedia ? "" : "mt-1"} text-lg sm:text-xl md:text-2xl font-semibold text-[var(--color-ink)] leading-snug`}>
               {t}
             </h3>
             {d && (
-              <p className="mt-2 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
+              <p className="mt-1.5 md:mt-2 text-sm md:text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
                 {d}
               </p>
             )}

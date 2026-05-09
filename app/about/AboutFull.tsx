@@ -13,7 +13,7 @@ export default function AboutFull({ content }: { content: SiteContent }) {
   const media = a.media ?? [];
 
   return (
-    <section className="max-w-3xl mx-auto px-6 md:px-10 py-16 md:py-24">
+    <section className="max-w-3xl mx-auto px-4 sm:px-6 md:px-10 py-12 md:py-24">
       <motion.span
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -26,7 +26,7 @@ export default function AboutFull({ content }: { content: SiteContent }) {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.6 }}
-        className="mt-6 text-base md:text-xl leading-[1.9] text-[var(--color-ink)]"
+        className="mt-5 md:mt-6 text-base md:text-xl leading-[1.8] md:leading-[1.9] text-[var(--color-ink)]"
       >
         {body}
       </motion.p>
@@ -60,10 +60,10 @@ export default function AboutFull({ content }: { content: SiteContent }) {
             >
               {m.type === "video" ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
-                <video src={m.url} controls className="w-full h-64 object-cover bg-black" />
+                <video src={m.url} controls className="w-full h-48 md:h-64 object-cover bg-black" />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={m.url} alt={m.caption ?? ""} className="w-full h-64 object-cover" />
+                <img src={m.url} alt={m.caption ?? ""} className="w-full h-48 md:h-64 object-cover" />
               )}
               {m.caption && (
                 <figcaption className="px-4 py-2 text-sm text-[var(--color-ink-soft)]">{m.caption}</figcaption>

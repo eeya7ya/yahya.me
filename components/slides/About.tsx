@@ -15,8 +15,8 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
   const media = (a.media ?? []).slice(0, 1);
 
   return (
-    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex items-center justify-center px-6 md:px-12 lg:px-20 py-20 md:py-24">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+    <div className="absolute inset-0 overflow-y-auto no-scrollbar flex items-center justify-center px-4 sm:px-6 md:px-12 lg:px-20 pt-20 pb-16 md:py-24">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 lg:gap-14 items-center">
         {/* Text column */}
         <div className={`lg:col-span-7 ${isRtl ? "lg:order-2" : ""}`}>
           <motion.div
@@ -35,7 +35,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="mt-5 text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.15] text-[var(--color-ink)]"
+            className="mt-4 md:mt-5 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.15] text-[var(--color-ink)]"
           >
             {isRtl ? "قصة قصيرة عنّي." : "A short story about me."}
           </motion.h2>
@@ -44,7 +44,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-6 max-w-2xl text-base md:text-lg lg:text-xl leading-[1.85] text-[var(--color-ink-soft)]"
+            className="mt-4 md:mt-6 max-w-2xl text-sm sm:text-base md:text-lg lg:text-xl leading-[1.75] md:leading-[1.85] text-[var(--color-ink-soft)]"
           >
             {body}
           </motion.p>
@@ -53,12 +53,12 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-8 flex flex-wrap gap-2.5"
+            className="mt-5 md:mt-8 flex flex-wrap gap-2 md:gap-2.5"
           >
             {values.map((v) => (
               <li
                 key={v}
-                className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 backdrop-blur-sm px-4 py-1.5 text-xs md:text-sm font-medium text-[var(--color-orange-600)]"
+                className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 backdrop-blur-sm px-3 md:px-4 py-1 md:py-1.5 text-xs md:text-sm font-medium text-[var(--color-orange-600)]"
               >
                 {v}
               </li>
@@ -92,10 +92,10 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             <figure className="relative rounded-3xl overflow-hidden border border-[var(--color-orange-300)]/50 bg-white/60 shadow-[0_30px_60px_-30px_rgba(217,112,26,0.35)]">
               {media[0].type === "video" ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
-                <video src={media[0].url} controls className="w-full aspect-[4/5] object-cover bg-black" />
+                <video src={media[0].url} controls className="w-full aspect-[16/10] md:aspect-[4/5] object-cover bg-black" />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={media[0].url} alt={media[0].caption ?? ""} className="w-full aspect-[4/5] object-cover" />
+                <img src={media[0].url} alt={media[0].caption ?? ""} className="w-full aspect-[16/10] md:aspect-[4/5] object-cover" />
               )}
               {media[0].caption && (
                 <figcaption className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/55 to-transparent text-sm text-white">
@@ -104,7 +104,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
               )}
             </figure>
           ) : (
-            <div className="relative aspect-[4/5] rounded-3xl border border-[var(--color-orange-300)]/40 bg-gradient-to-br from-[var(--color-orange-50)] via-white/60 to-[var(--color-orange-100)]/60 backdrop-blur-sm overflow-hidden">
+            <div className="relative aspect-[16/10] md:aspect-[4/5] rounded-3xl border border-[var(--color-orange-300)]/40 bg-gradient-to-br from-[var(--color-orange-50)] via-white/60 to-[var(--color-orange-100)]/60 backdrop-blur-sm overflow-hidden">
               <div className="absolute inset-0 grid place-items-center">
                 <div className="text-center px-6">
                   <span className="block text-[11px] tracking-[0.3em] uppercase text-[var(--color-orange-600)] font-semibold">
