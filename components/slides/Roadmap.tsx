@@ -20,6 +20,7 @@ export default function Roadmap({
   const title = lang === "ar" ? r.titleAr : r.titleEn;
   const subtitle = lang === "ar" ? r.subtitleAr : r.subtitleEn;
   const viewMore = dict[lang].ui.viewMore;
+  const prefix = lang === "ar" ? "/ar" : "";
   const [openId, setOpenId] = useState<number | string | null>(null);
 
   return (
@@ -113,7 +114,7 @@ export default function Roadmap({
 
         <div className="mt-10 flex justify-center">
           <Link
-            href="/roadmap"
+            href={`${prefix}/roadmap`}
             className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
           >
             <span>{viewMore}</span>

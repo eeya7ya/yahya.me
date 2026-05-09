@@ -6,7 +6,7 @@ import { pageMeta } from "@/lib/seo";
 export const revalidate = 60;
 
 export function generateMetadata() {
-  return pageMeta("home", "en");
+  return pageMeta("home", "ar");
 }
 
 export default async function Page() {
@@ -15,5 +15,5 @@ export default async function Page() {
     loadRoadmap(),
     loadAchievements(),
   ]);
-  return <Deck content={content} roadmap={roadmap} achievements={achievements} initialLang="en" />;
+  return <Deck content={content} roadmap={roadmap} achievements={achievements} initialLang="ar" />;
 }

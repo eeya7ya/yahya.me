@@ -6,19 +6,26 @@ import type { Lang } from "@/lib/i18n";
 type Ctx = { lang: Lang; setLang: (l: Lang) => void };
 const LangCtx = createContext<Ctx | null>(null);
 
-export function LangProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>("en");
+export function LangProvider({
+  children,
+  initialLang = "en",
+}: {
+  children: React.ReactNode;
+  initialLang?: Lang;
+}) {
+  const [lang, setLang] = useState<Lang>(initialLang);
 
+  // Re-sync if the URL-derived initialLang changes (e.g. on client-side navigation
+  // between EN and AR routes within the same provider lifetime).
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && localStorage.getItem("lang")) as Lang | null;
-    if (stored === "ar" || stored === "en") setLang(stored);
-  }, []);
+    setLang(initialLang);
+  }, [initialLang]);
 
+  // Belt-and-suspenders: keep <html lang/dir> in sync if anything mutates them.
   useEffect(() => {
     const html = document.documentElement;
     html.lang = lang;
     html.dir = lang === "ar" ? "rtl" : "ltr";
-    if (typeof window !== "undefined") localStorage.setItem("lang", lang);
   }, [lang]);
 
   const value = useMemo(() => ({ lang, setLang }), [lang]);

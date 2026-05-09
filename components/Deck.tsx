@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import Hero from "./slides/Hero";
@@ -15,13 +16,21 @@ type Props = {
   content: SiteContent;
   roadmap: RoadmapRow[];
   achievements: AchievementRow[];
+  initialLang?: Lang;
 };
 
 const WHEEL_LOCK_MS = 700;
 const TOUCH_THRESHOLD = 50;
 
-export default function Deck({ content, roadmap, achievements }: Props) {
-  const [lang, setLang] = useState<Lang>("en");
+export default function Deck({ content, roadmap, achievements, initialLang = "en" }: Props) {
+  const router = useRouter();
+  const [lang, setLang] = useState<Lang>(initialLang);
+  const toggleLang = useCallback(() => {
+    const next: Lang = lang === "ar" ? "en" : "ar";
+    setLang(next);
+    // Sync the URL so server-rendered <html lang> stays correct on reload/share.
+    router.replace(next === "ar" ? "/ar" : "/");
+  }, [lang, router]);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const lockRef = useRef(false);
@@ -111,7 +120,7 @@ export default function Deck({ content, roadmap, achievements }: Props) {
           {lang === "ar" ? "يحيى خالد" : "Yahya Khaled"}
         </button>
         <button
-          onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+          onClick={toggleLang}
           aria-label="Toggle language"
           className="size-10 rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 backdrop-blur text-sm font-semibold text-[var(--color-orange-600)] hover:bg-[var(--color-orange-50)] transition"
         >
