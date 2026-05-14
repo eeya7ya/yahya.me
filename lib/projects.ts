@@ -2,9 +2,13 @@ import type { ProjectRow } from "./schema";
 
 export type ProjectMedia = {
   url: string;
-  type: "image" | "video";
+  type: "image" | "video" | "pdf";
   caption?: string;
 };
+
+function inferTypeFromUrl(url: string): ProjectMedia["type"] {
+  return /\.pdf(\?|#|$)/i.test(url) ? "pdf" : "image";
+}
 
 export function parseProjectMedia(row: ProjectRow): ProjectMedia[] {
   const items: ProjectMedia[] = [];
@@ -14,7 +18,11 @@ export function parseProjectMedia(row: ProjectRow): ProjectMedia[] {
     if (!Array.isArray(parsed)) return items;
     for (const m of parsed) {
       if (!m || typeof m.url !== "string" || !m.url) continue;
-      const type = m.type === "video" ? "video" : "image";
+      const type: ProjectMedia["type"] =
+        m.type === "video" ? "video" :
+        m.type === "pdf" ? "pdf" :
+        m.type === "image" ? "image" :
+        inferTypeFromUrl(m.url);
       items.push({ url: m.url, type, caption: typeof m.caption === "string" ? m.caption : undefined });
     }
   } catch {
