@@ -18,11 +18,13 @@ export function parseProjectMedia(row: ProjectRow): ProjectMedia[] {
     if (!Array.isArray(parsed)) return items;
     for (const m of parsed) {
       if (!m || typeof m.url !== "string" || !m.url) continue;
+      const isPdfUrl = /\.pdf(\?|#|$)/i.test(m.url);
       const type: ProjectMedia["type"] =
+        isPdfUrl ? "pdf" :
         m.type === "video" ? "video" :
         m.type === "pdf" ? "pdf" :
         m.type === "image" ? "image" :
-        inferTypeFromUrl(m.url);
+        "image";
       items.push({ url: m.url, type, caption: typeof m.caption === "string" ? m.caption : undefined });
     }
   } catch {
