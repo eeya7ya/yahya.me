@@ -101,6 +101,11 @@ function ProjectCard({
                 preload="metadata"
                 className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
               />
+            ) : cover.type === "pdf" ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[var(--color-orange-100)] via-white to-[var(--color-orange-50)] text-[var(--color-orange-700)]">
+                <span className="text-5xl">📄</span>
+                <span className="text-xs font-semibold tracking-wide uppercase">PDF</span>
+              </div>
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -143,6 +148,8 @@ function ProjectCard({
               >
                 {m.type === "video" ? (
                   <span className="absolute inset-0 grid place-items-center bg-black text-white text-base">▶</span>
+                ) : m.type === "pdf" ? (
+                  <span className="absolute inset-0 grid place-items-center bg-[var(--color-orange-50)] text-[var(--color-orange-700)] text-base">📄</span>
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={m.url} alt="" className="absolute inset-0 size-full object-cover" />

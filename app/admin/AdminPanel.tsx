@@ -29,7 +29,11 @@ function parseMediaField(raw: string | undefined | null): MediaItem[] {
       .filter((m) => m && typeof m.url === "string" && m.url.length > 0)
       .map((m) => ({
         url: String(m.url),
-        type: m.type === "video" ? "video" : "image",
+        type:
+          m.type === "video" ? "video" :
+          m.type === "pdf" ? "pdf" :
+          /\.pdf(\?|#|$)/i.test(String(m.url)) ? "pdf" :
+          "image",
         caption: typeof m.caption === "string" ? m.caption : undefined,
       })) as MediaItem[];
   } catch {
@@ -682,6 +686,7 @@ function ProjectsEditor({
             items={projectMediaItems(row)}
             onChange={(media) => update(row.id, { media: JSON.stringify(media) })}
             flash={flash}
+            allowPdf
           />
           <div className="flex items-center justify-end gap-2">
             <button onClick={() => deleteRow(row)} disabled={busy} className="text-xs px-3 py-1.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60">
@@ -790,13 +795,22 @@ function MediaGallery({
   items,
   onChange,
   flash,
+  allowPdf = false,
 }: {
   items: MediaItem[];
   onChange: (items: MediaItem[]) => void;
   flash: (msg: string) => void;
+  allowPdf?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const acceptAttr = allowPdf ? "image/*,video/*,application/pdf,.pdf" : "image/*,video/*";
+
+  function inferType(file: File): MediaItem["type"] {
+    if (allowPdf && (file.type === "application/pdf" || /\.pdf$/i.test(file.name))) return "pdf";
+    if (file.type.startsWith("video")) return "video";
+    return "image";
+  }
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -805,7 +819,7 @@ function MediaGallery({
       const added: MediaItem[] = [];
       for (const f of Array.from(files)) {
         const url = await uploadFile(f);
-        added.push({ url, type: f.type.startsWith("video") ? "video" : "image" });
+        added.push({ url, type: inferType(f) });
       }
       onChange([...items, ...added]);
       flash("Uploaded");
@@ -818,11 +832,13 @@ function MediaGallery({
   }
 
   function addByUrl() {
-    const url = prompt("Paste a public image or video URL");
+    const url = prompt(allowPdf ? "Paste a public image, video, or PDF URL" : "Paste a public image or video URL");
     if (!url) return;
     const lower = url.toLowerCase();
     const type: MediaItem["type"] =
-      /\.(mp4|webm|mov|m4v)$/i.test(lower) ? "video" : "image";
+      allowPdf && /\.pdf(\?|#|$)/i.test(lower) ? "pdf" :
+      /\.(mp4|webm|mov|m4v)$/i.test(lower) ? "video" :
+      "image";
     onChange([...items, { url: url.trim(), type }]);
   }
 
@@ -857,7 +873,7 @@ function MediaGallery({
           <input
             ref={inputRef}
             type="file"
-            accept="image/*,video/*"
+            accept={acceptAttr}
             multiple
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
@@ -874,6 +890,16 @@ function MediaGallery({
               {m.type === "video" ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video src={m.url} controls className="w-full h-32 rounded-lg object-cover" />
+              ) : m.type === "pdf" ? (
+                <a
+                  href={m.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex h-32 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-orange-50)] text-sm font-medium text-[var(--color-orange-700)] hover:bg-[var(--color-orange-100)]"
+                >
+                  <span className="text-2xl">📄</span>
+                  <span className="truncate">{m.caption || decodeURIComponent(m.url.split("/").pop() ?? "PDF")}</span>
+                </a>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={m.url} alt={m.caption ?? ""} className="w-full h-32 rounded-lg object-cover" />

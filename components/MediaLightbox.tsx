@@ -105,6 +105,12 @@ export default function MediaLightbox({ open, media, startIndex = 0, title, onCl
                   autoPlay
                   className="max-h-[80vh] max-w-full rounded-lg bg-black"
                 />
+              ) : active.type === "pdf" ? (
+                <iframe
+                  src={active.url}
+                  title={active.caption ?? title ?? "PDF"}
+                  className="h-[80vh] w-[90vw] max-w-5xl rounded-lg bg-white"
+                />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -149,6 +155,8 @@ export default function MediaLightbox({ open, media, startIndex = 0, title, onCl
                       >
                         {m.type === "video" ? (
                           <span className="absolute inset-0 grid place-items-center bg-black text-white text-base">▶</span>
+                        ) : m.type === "pdf" ? (
+                          <span className="absolute inset-0 grid place-items-center bg-white text-[var(--color-orange-700)] text-base">📄</span>
                         ) : (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={m.url} alt="" className="absolute inset-0 size-full object-cover" />

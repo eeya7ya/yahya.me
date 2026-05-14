@@ -2,7 +2,7 @@ import type { AchievementRow } from "./schema";
 
 export type AchievementMedia = {
   url: string;
-  type: "image" | "video";
+  type: "image" | "video" | "pdf";
   caption?: string;
 };
 
