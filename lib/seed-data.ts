@@ -1,4 +1,4 @@
-import type { RoadmapRow, AchievementRow } from "./schema";
+import type { RoadmapRow, AchievementRow, ProjectRow } from "./schema";
 
 export const seedRoadmap: RoadmapRow[] = [
   {
@@ -102,3 +102,5 @@ export const seedAchievements: AchievementRow[] = [
     sortOrder: 4,
   },
 ];
+
+export const seedProjects: ProjectRow[] = [];

@@ -1,5 +1,5 @@
 import Deck from "@/components/Deck";
-import { loadAchievements, loadRoadmap } from "@/lib/content";
+import { loadAchievements, loadProjects, loadRoadmap } from "@/lib/content";
 import { loadContent } from "@/lib/settings";
 import { pageMeta } from "@/lib/seo";
 
@@ -10,10 +10,11 @@ export function generateMetadata() {
 }
 
 export default async function Page() {
-  const [content, roadmap, achievements] = await Promise.all([
+  const [content, roadmap, achievements, projects] = await Promise.all([
     loadContent(),
     loadRoadmap(),
     loadAchievements(),
+    loadProjects(),
   ]);
-  return <Deck content={content} roadmap={roadmap} achievements={achievements} initialLang="en" />;
+  return <Deck content={content} roadmap={roadmap} achievements={achievements} projects={projects} initialLang="en" />;
 }

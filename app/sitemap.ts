@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { pathFor, SITE_URL, type Route } from "@/lib/seo";
 
-const ROUTES: Route[] = ["home", "about", "roadmap", "achievements", "contact"];
+const ROUTES: Route[] = ["home", "about", "roadmap", "achievements", "projects", "contact"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

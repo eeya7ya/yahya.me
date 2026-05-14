@@ -8,13 +8,14 @@ export const LOCALE_MAP: Record<Lang, string> = {
   ar: "ar_EG",
 };
 
-export type Route = "home" | "about" | "roadmap" | "achievements" | "contact";
+export type Route = "home" | "about" | "roadmap" | "achievements" | "projects" | "contact";
 
 const ROUTE_BASE: Record<Route, string> = {
   home: "",
   about: "/about",
   roadmap: "/roadmap",
   achievements: "/achievements",
+  projects: "/projects",
   contact: "/contact",
 };
 
@@ -41,6 +42,8 @@ function copyFor(route: Route, lang: Lang): Copy {
       return { title: t.roadmap.title, description: t.roadmap.subtitle };
     case "achievements":
       return { title: t.achievements.title, description: t.achievements.subtitle };
+    case "projects":
+      return { title: t.projects.title, description: t.projects.subtitle };
     case "contact":
       return { title: t.contact.title, description: t.contact.subtitle };
   }

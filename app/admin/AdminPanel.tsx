@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
-import type { RoadmapRow, AchievementRow } from "@/lib/schema";
+import type { RoadmapRow, AchievementRow, ProjectRow } from "@/lib/schema";
 import { contentToFlat, type SiteContent } from "@/lib/settings";
 
 type Props = {
   content: SiteContent;
   roadmap: RoadmapRow[];
   achievements: AchievementRow[];
+  projects: ProjectRow[];
   dbConnected: boolean;
 };
 
-type Tab = "content" | "roadmap" | "achievements";
+type Tab = "content" | "roadmap" | "achievements" | "projects";
 
 const ICON_OPTIONS = ["spark", "trophy", "bolt", "sun"] as const;
 
@@ -45,7 +46,7 @@ function achievementMediaItems(row: { media?: string; imageUrl?: string; videoUr
   return legacy;
 }
 
-export default function AdminPanel({ content, roadmap, achievements, dbConnected }: Props) {
+export default function AdminPanel({ content, roadmap, achievements, projects, dbConnected }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("content");
   const [, startTransition] = useTransition();
@@ -86,7 +87,7 @@ export default function AdminPanel({ content, roadmap, achievements, dbConnected
         </div>
 
         <nav className="max-w-6xl mx-auto px-6 md:px-10 pb-3 flex items-center gap-2">
-          {(["content", "roadmap", "achievements"] as Tab[]).map((t) => (
+          {(["content", "roadmap", "achievements", "projects"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -117,6 +118,9 @@ export default function AdminPanel({ content, roadmap, achievements, dbConnected
         )}
         {tab === "achievements" && (
           <AchievementsEditor items={achievements} busy={busy} setBusy={setBusy} flash={flash} refresh={() => startTransition(() => router.refresh())} />
+        )}
+        {tab === "projects" && (
+          <ProjectsEditor items={projects} busy={busy} setBusy={setBusy} flash={flash} refresh={() => startTransition(() => router.refresh())} />
         )}
       </main>
 
@@ -244,6 +248,17 @@ function ContentEditor({
         <Bilingual
           labelAr="Subtitle (AR)" valueAr={draft.achievements.subtitleAr} onChangeAr={(v) => patch("achievements", { ...draft.achievements, subtitleAr: v })}
           labelEn="Subtitle (EN)" valueEn={draft.achievements.subtitleEn} onChangeEn={(v) => patch("achievements", { ...draft.achievements, subtitleEn: v })}
+        />
+      </Section>
+
+      <Section title="Projects headers">
+        <Bilingual
+          labelAr="Title (AR)" valueAr={draft.projects.titleAr} onChangeAr={(v) => patch("projects", { ...draft.projects, titleAr: v })}
+          labelEn="Title (EN)" valueEn={draft.projects.titleEn} onChangeEn={(v) => patch("projects", { ...draft.projects, titleEn: v })}
+        />
+        <Bilingual
+          labelAr="Subtitle (AR)" valueAr={draft.projects.subtitleAr} onChangeAr={(v) => patch("projects", { ...draft.projects, subtitleAr: v })}
+          labelEn="Subtitle (EN)" valueEn={draft.projects.subtitleEn} onChangeEn={(v) => patch("projects", { ...draft.projects, subtitleEn: v })}
         />
       </Section>
 
@@ -529,6 +544,143 @@ function AchievementsEditor({
                 videoUrl: "",
               })
             }
+            flash={flash}
+          />
+          <div className="flex items-center justify-end gap-2">
+            <button onClick={() => deleteRow(row)} disabled={busy} className="text-xs px-3 py-1.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60">
+              Delete
+            </button>
+            <button onClick={() => saveRow(row)} disabled={busy} className="text-xs px-4 py-1.5 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white disabled:opacity-60">
+              {row._isNew ? "Create" : "Save"}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------------- Projects editor ---------------- */
+
+function projectMediaItems(row: { media?: string }): MediaItem[] {
+  return parseMediaField(row.media);
+}
+
+function ProjectsEditor({
+  items,
+  busy,
+  setBusy,
+  flash,
+  refresh,
+}: {
+  items: ProjectRow[];
+  busy: boolean;
+  setBusy: (v: boolean) => void;
+  flash: (msg: string) => void;
+  refresh: () => void;
+}) {
+  const [rows, setRows] = useState<EditorRow<ProjectRow>[]>(items);
+
+  function update(id: number, patch: Partial<ProjectRow>) {
+    setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch, _dirty: true } : r)));
+  }
+
+  function addRow() {
+    const tempId = -Date.now();
+    setRows((rs) => [
+      ...rs,
+      {
+        id: tempId, year: "", titleAr: "", titleEn: "", descAr: "", descEn: "",
+        field: "", media: "[]",
+        sortOrder: rs.length + 1, _isNew: true, _dirty: true,
+      },
+    ]);
+  }
+
+  async function saveRow(row: EditorRow<ProjectRow>) {
+    setBusy(true);
+    try {
+      const payload = {
+        year: row.year, titleAr: row.titleAr, titleEn: row.titleEn,
+        descAr: row.descAr, descEn: row.descEn,
+        field: row.field,
+        media: parseMediaField(row.media),
+        sortOrder: row.sortOrder,
+      };
+      if (row._isNew) {
+        const res = await fetch("/api/admin/projects", {
+          method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(await readError(res));
+      } else {
+        const res = await fetch(`/api/admin/projects/${row.id}`, {
+          method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(await readError(res));
+      }
+      flash("Saved");
+      refresh();
+    } catch (e) {
+      console.error(e);
+      flash(`Save failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteRow(row: EditorRow<ProjectRow>) {
+    if (row._isNew) {
+      setRows((rs) => rs.filter((r) => r.id !== row.id));
+      return;
+    }
+    if (!confirm("Delete this project?")) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/projects/${row.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(await readError(res));
+      setRows((rs) => rs.filter((r) => r.id !== row.id));
+      flash("Deleted");
+      refresh();
+    } catch (e) {
+      console.error(e);
+      flash(`Delete failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Projects</h2>
+        <button onClick={addRow} className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 px-3 py-1.5 text-xs hover:bg-[var(--color-orange-50)]">
+          + Add project
+        </button>
+      </div>
+      {rows.map((row) => (
+        <div key={row.id} className="rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/70 p-5 space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Field label="Year" value={row.year} onChange={(v) => update(row.id, { year: v })} />
+            <Field label="Sort" type="number" value={String(row.sortOrder)} onChange={(v) => update(row.id, { sortOrder: Number(v) || 0 })} />
+            <div className="md:col-span-2">
+              <Field
+                label="Field (e.g. Protection Engineer, IT, Design)"
+                value={row.field}
+                onChange={(v) => update(row.id, { field: v })}
+              />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            <Field label="Title (AR)" value={row.titleAr} onChange={(v) => update(row.id, { titleAr: v })} />
+            <Field label="Title (EN)" value={row.titleEn} onChange={(v) => update(row.id, { titleEn: v })} />
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            <TextareaField label="Desc (AR)" value={row.descAr} onChange={(v) => update(row.id, { descAr: v })} />
+            <TextareaField label="Desc (EN)" value={row.descEn} onChange={(v) => update(row.id, { descEn: v })} />
+          </div>
+          <MediaGallery
+            items={projectMediaItems(row)}
+            onChange={(media) => update(row.id, { media: JSON.stringify(media) })}
             flash={flash}
           />
           <div className="flex items-center justify-end gap-2">
