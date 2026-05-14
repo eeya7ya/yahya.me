@@ -28,6 +28,10 @@ export type SiteContent = {
     titleAr: string; titleEn: string;
     subtitleAr: string; subtitleEn: string;
   };
+  projects: {
+    titleAr: string; titleEn: string;
+    subtitleAr: string; subtitleEn: string;
+  };
   contact: {
     titleAr: string; titleEn: string;
     subtitleAr: string; subtitleEn: string;
@@ -58,6 +62,10 @@ export const defaultContent: SiteContent = {
   achievements: {
     titleAr: dict.ar.achievements.title,    titleEn: dict.en.achievements.title,
     subtitleAr: dict.ar.achievements.subtitle, subtitleEn: dict.en.achievements.subtitle,
+  },
+  projects: {
+    titleAr: dict.ar.projects.title,    titleEn: dict.en.projects.title,
+    subtitleAr: dict.ar.projects.subtitle, subtitleEn: dict.en.projects.subtitle,
   },
   contact: {
     titleAr: dict.ar.contact.title,        titleEn: dict.en.contact.title,
@@ -90,6 +98,9 @@ export const SETTING_KEYS = [
 
   ["achievements.title.ar", "string"], ["achievements.title.en", "string"],
   ["achievements.subtitle.ar", "string"], ["achievements.subtitle.en", "string"],
+
+  ["projects.title.ar", "string"], ["projects.title.en", "string"],
+  ["projects.subtitle.ar", "string"], ["projects.subtitle.en", "string"],
 
   ["contact.title.ar", "string"], ["contact.title.en", "string"],
   ["contact.subtitle.ar", "string"], ["contact.subtitle.en", "string"],
@@ -133,6 +144,11 @@ function applyOverrides(base: SiteContent, map: Map<string, string>): SiteConten
   c.achievements.subtitleAr = get("achievements.subtitle.ar") ?? c.achievements.subtitleAr;
   c.achievements.subtitleEn = get("achievements.subtitle.en") ?? c.achievements.subtitleEn;
 
+  c.projects.titleAr    = get("projects.title.ar")    ?? c.projects.titleAr;
+  c.projects.titleEn    = get("projects.title.en")    ?? c.projects.titleEn;
+  c.projects.subtitleAr = get("projects.subtitle.ar") ?? c.projects.subtitleAr;
+  c.projects.subtitleEn = get("projects.subtitle.en") ?? c.projects.subtitleEn;
+
   c.contact.titleAr    = get("contact.title.ar")    ?? c.contact.titleAr;
   c.contact.titleEn    = get("contact.title.en")    ?? c.contact.titleEn;
   c.contact.subtitleAr = get("contact.subtitle.ar") ?? c.contact.subtitleAr;
@@ -162,6 +178,8 @@ export function contentToFlat(c: SiteContent): Record<SettingKey, string> {
     "roadmap.subtitle.ar": c.roadmap.subtitleAr, "roadmap.subtitle.en": c.roadmap.subtitleEn,
     "achievements.title.ar": c.achievements.titleAr, "achievements.title.en": c.achievements.titleEn,
     "achievements.subtitle.ar": c.achievements.subtitleAr, "achievements.subtitle.en": c.achievements.subtitleEn,
+    "projects.title.ar": c.projects.titleAr, "projects.title.en": c.projects.titleEn,
+    "projects.subtitle.ar": c.projects.subtitleAr, "projects.subtitle.en": c.projects.subtitleEn,
     "contact.title.ar": c.contact.titleAr, "contact.title.en": c.contact.titleEn,
     "contact.subtitle.ar": c.contact.subtitleAr, "contact.subtitle.en": c.contact.subtitleEn,
     "contact.email": c.contact.email,

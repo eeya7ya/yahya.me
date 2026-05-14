@@ -8,21 +8,23 @@ import Hero from "./slides/Hero";
 import About from "./slides/About";
 import Roadmap from "./slides/Roadmap";
 import Achievements from "./slides/Achievements";
+import Projects from "./slides/Projects";
 import Contact from "./slides/Contact";
-import type { RoadmapRow, AchievementRow } from "@/lib/schema";
+import type { RoadmapRow, AchievementRow, ProjectRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
 
 type Props = {
   content: SiteContent;
   roadmap: RoadmapRow[];
   achievements: AchievementRow[];
+  projects: ProjectRow[];
   initialLang?: Lang;
 };
 
 const WHEEL_LOCK_MS = 700;
 const TOUCH_THRESHOLD = 50;
 
-export default function Deck({ content, roadmap, achievements, initialLang = "en" }: Props) {
+export default function Deck({ content, roadmap, achievements, projects, initialLang = "en" }: Props) {
   const router = useRouter();
   const [lang, setLang] = useState<Lang>(initialLang);
   const toggleLang = useCallback(() => {
@@ -42,6 +44,7 @@ export default function Deck({ content, roadmap, achievements, initialLang = "en
     <About key="about" lang={lang} content={content} />,
     <Roadmap key="roadmap" lang={lang} content={content} items={roadmap} />,
     <Achievements key="ach" lang={lang} content={content} items={achievements} />,
+    <Projects key="projects" lang={lang} content={content} items={projects} />,
     <Contact key="contact" lang={lang} t={t} content={content} />,
   ];
 
@@ -107,7 +110,7 @@ export default function Deck({ content, roadmap, achievements, initialLang = "en
     };
   }, [go, slides.length]);
 
-  const navLabels = [t.nav.home, t.nav.about, t.nav.roadmap, t.nav.achievements, t.nav.contact];
+  const navLabels = [t.nav.home, t.nav.about, t.nav.roadmap, t.nav.achievements, t.nav.projects, t.nav.contact];
 
   return (
     <main className="fixed inset-0 overflow-hidden">

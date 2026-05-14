@@ -2,7 +2,7 @@ export type Lang = "ar" | "en";
 
 export const dict = {
   ar: {
-    nav: { home: "الرئيسية", about: "عني", roadmap: "المسيرة", achievements: "الإنجازات", contact: "تواصل" },
+    nav: { home: "الرئيسية", about: "عني", roadmap: "المسيرة", achievements: "الإنجازات", projects: "المشاريع", contact: "تواصل" },
     hero: {
       greeting: "مرحباً، أنا",
       name: "يحيى خالد",
@@ -19,6 +19,7 @@ export const dict = {
     },
     roadmap: { title: "خارطة الطريق", subtitle: "المحطات الكبرى في رحلتي" },
     achievements: { title: "إنجازات", subtitle: "محطات أفتخر بها" },
+    projects: { title: "المشاريع", subtitle: "أعمال أفتخر بها" },
     contact: {
       title: "تواصل",
       subtitle: "لنبني شيئاً جميلاً معاً",
@@ -30,7 +31,7 @@ export const dict = {
     ui: { switchLang: "EN", scrollHint: "مرّر للأسفل", viewMore: "اعرف المزيد" },
   },
   en: {
-    nav: { home: "Home", about: "About", roadmap: "Roadmap", achievements: "Achievements", contact: "Contact" },
+    nav: { home: "Home", about: "About", roadmap: "Roadmap", achievements: "Achievements", projects: "Projects", contact: "Contact" },
     hero: {
       greeting: "Hello, I'm",
       name: "Yahya Khaled",
@@ -47,6 +48,7 @@ export const dict = {
     },
     roadmap: { title: "Roadmap", subtitle: "Milestones along the journey" },
     achievements: { title: "Achievements", subtitle: "Moments I'm proud of" },
+    projects: { title: "Projects", subtitle: "Work I'm proud of" },
     contact: {
       title: "Contact",
       subtitle: "Let's build something beautiful",

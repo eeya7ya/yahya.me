@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { dict, type Lang } from "@/lib/i18n";
 
-type Current = "about" | "roadmap" | "achievements" | "contact";
+type Current = "about" | "roadmap" | "achievements" | "projects" | "contact";
 
 export default function SiteHeader({ current, lang }: { current: Current; lang: Lang }) {
   const t = dict[lang];
@@ -16,6 +16,7 @@ export default function SiteHeader({ current, lang }: { current: Current; lang: 
     { key: "about",        href: `${prefix}/about`,        label: t.nav.about },
     { key: "roadmap",      href: `${prefix}/roadmap`,      label: t.nav.roadmap },
     { key: "achievements", href: `${prefix}/achievements`, label: t.nav.achievements },
+    { key: "projects",     href: `${prefix}/projects`,     label: t.nav.projects },
     { key: "contact",      href: `${prefix}/contact`,      label: t.nav.contact },
   ];
 

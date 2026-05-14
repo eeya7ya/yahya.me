@@ -24,6 +24,18 @@ export const achievements = pgTable("achievements", {
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
+export const projects = pgTable("projects", {
+  id: serial("id").primaryKey(),
+  year: text("year").notNull().default(""),
+  titleAr: text("title_ar").notNull(),
+  titleEn: text("title_en").notNull(),
+  descAr: text("desc_ar").notNull().default(""),
+  descEn: text("desc_en").notNull().default(""),
+  field: text("field").notNull().default(""),
+  media: text("media").notNull().default("[]"),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
 export const siteSettings = pgTable("site_settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
@@ -31,4 +43,5 @@ export const siteSettings = pgTable("site_settings", {
 
 export type RoadmapRow = typeof roadmap.$inferSelect;
 export type AchievementRow = typeof achievements.$inferSelect;
+export type ProjectRow = typeof projects.$inferSelect;
 export type SiteSettingRow = typeof siteSettings.$inferSelect;

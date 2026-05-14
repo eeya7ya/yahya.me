@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm";
 import { getDb } from "./db";
-import { roadmap, achievements, type RoadmapRow, type AchievementRow } from "./schema";
-import { seedRoadmap, seedAchievements } from "./seed-data";
+import { roadmap, achievements, projects, type RoadmapRow, type AchievementRow, type ProjectRow } from "./schema";
+import { seedRoadmap, seedAchievements, seedProjects } from "./seed-data";
 
 export async function loadRoadmap(): Promise<RoadmapRow[]> {
   const db = getDb();
@@ -22,5 +22,16 @@ export async function loadAchievements(): Promise<AchievementRow[]> {
     return rows.length ? rows : seedAchievements;
   } catch {
     return seedAchievements;
+  }
+}
+
+export async function loadProjects(): Promise<ProjectRow[]> {
+  const db = getDb();
+  if (!db) return seedProjects;
+  try {
+    const rows = await db.select().from(projects).orderBy(asc(projects.sortOrder));
+    return rows;
+  } catch {
+    return seedProjects;
   }
 }
