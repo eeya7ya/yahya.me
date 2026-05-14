@@ -30,9 +30,9 @@ function parseMediaField(raw: string | undefined | null): MediaItem[] {
       .map((m) => ({
         url: String(m.url),
         type:
+          /\.pdf(\?|#|$)/i.test(String(m.url)) ? "pdf" :
           m.type === "video" ? "video" :
           m.type === "pdf" ? "pdf" :
-          /\.pdf(\?|#|$)/i.test(String(m.url)) ? "pdf" :
           "image",
         caption: typeof m.caption === "string" ? m.caption : undefined,
       })) as MediaItem[];
@@ -895,10 +895,14 @@ function MediaGallery({
                   href={m.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-32 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-orange-50)] text-sm font-medium text-[var(--color-orange-700)] hover:bg-[var(--color-orange-100)]"
+                  className="relative block h-32 w-full overflow-hidden rounded-lg bg-white border border-[var(--color-orange-300)]/40"
                 >
-                  <span className="text-2xl">📄</span>
-                  <span className="truncate">{m.caption || decodeURIComponent(m.url.split("/").pop() ?? "PDF")}</span>
+                  <iframe
+                    src={`${m.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                    title={m.caption || "PDF preview"}
+                    className="size-full pointer-events-none"
+                  />
+                  <span className="absolute top-1 right-1 rounded-full bg-[var(--color-orange-500)] text-white text-[9px] font-semibold tracking-wider uppercase px-1.5 py-0.5 shadow">PDF</span>
                 </a>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */

@@ -102,9 +102,13 @@ function ProjectCard({
                 className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
               />
             ) : cover.type === "pdf" ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[var(--color-orange-100)] via-white to-[var(--color-orange-50)] text-[var(--color-orange-700)]">
-                <span className="text-5xl">📄</span>
-                <span className="text-xs font-semibold tracking-wide uppercase">PDF</span>
+              <div className="absolute inset-0 bg-white">
+                <iframe
+                  src={`${cover.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                  title={t}
+                  className="size-full pointer-events-none"
+                />
+                <span className="absolute top-3 right-3 rounded-full bg-[var(--color-orange-500)] text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 shadow">PDF</span>
               </div>
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
