@@ -9,8 +9,6 @@ import type { SiteContent } from "@/lib/settings";
 import { parseProjectMedia, type ProjectMedia } from "@/lib/projects";
 import MediaLightbox from "@/components/MediaLightbox";
 
-const HOME_PREVIEW_COUNT = 2;
-
 export default function Projects({
   lang,
   content,
@@ -25,9 +23,26 @@ export default function Projects({
   const subtitle = lang === "ar" ? p.subtitleAr : p.subtitleEn;
   const viewMore = dict[lang].ui.viewMore;
   const prefix = lang === "ar" ? "/ar" : "";
-  const previewItems = items.slice(-HOME_PREVIEW_COUNT);
-  const hasMore = items.length > previewItems.length;
   const [lightbox, setLightbox] = useState<{ media: ProjectMedia[]; title: string } | null>(null);
+  const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set());
+
+  const groupedByField = items.reduce<Record<string, ProjectRow[]>>((acc, row) => {
+    const field = row.field || (lang === "ar" ? "عام" : "General");
+    if (!acc[field]) acc[field] = [];
+    acc[field].push(row);
+    return acc;
+  }, {});
+
+  const sortedFields = Object.keys(groupedByField).sort((a, b) => a.localeCompare(b));
+
+  const toggleField = (field: string) => {
+    setExpandedFields((prev) => {
+      const next = new Set(prev);
+      if (next.has(field)) next.delete(field);
+      else next.add(field);
+      return next;
+    });
+  };
 
   return (
     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col items-center px-4 sm:px-6 md:px-12 pt-20 md:pt-24 pb-20 md:pb-12">
@@ -51,114 +66,139 @@ export default function Projects({
             {lang === "ar" ? "لا توجد مشاريع بعد." : "No projects yet."}
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {previewItems.map((it, i) => {
-              const t = lang === "ar" ? it.titleAr : it.titleEn;
-              const d = lang === "ar" ? it.descAr : it.descEn;
-              const media = parseProjectMedia(it);
-              const cover = media[0];
-              const hasMedia = Boolean(cover);
+          <div className="space-y-3">
+            {sortedFields.map((field, fi) => {
+              const fieldItems = groupedByField[field];
+              const isOpen = expandedFields.has(field);
               return (
-                <motion.article
-                  key={it.id}
-                  initial={{ opacity: 0, y: 16 }}
+                <motion.div
+                  key={field}
+                  initial={{ opacity: 0, y: 8 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.45, delay: i * 0.06 }}
-                  onClick={() => {
-                    if (hasMedia) setLightbox({ media, title: t });
-                  }}
-                  role={hasMedia ? "button" : undefined}
-                  tabIndex={hasMedia ? 0 : undefined}
-                  onKeyDown={(e) => {
-                    if (!hasMedia) return;
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setLightbox({ media, title: t });
-                    }
-                  }}
-                  className={`${i >= 1 ? "hidden sm:flex" : "flex"} group relative flex-col overflow-hidden rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/75 backdrop-blur-sm hover:border-[var(--color-orange-500)] hover:shadow-[0_18px_50px_-20px_rgba(217,112,26,0.4)] transition ${hasMedia ? "cursor-pointer" : ""}`}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: fi * 0.05 }}
+                  className="rounded-2xl border border-[var(--color-orange-300)]/40 overflow-hidden bg-white/75 backdrop-blur-sm"
                 >
-                  {hasMedia && cover ? (
-                    <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
-                      {cover.type === "video" ? (
-                        // eslint-disable-next-line jsx-a11y/media-has-caption
-                        <video
-                          src={cover.url}
-                          muted
-                          playsInline
-                          preload="metadata"
-                          className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
-                        />
-                      ) : cover.type === "pdf" ? (
-                        <div className="absolute inset-0 bg-white">
-                          <iframe
-                            src={`${cover.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                            title={t}
-                            className="size-full pointer-events-none"
-                          />
-                          <span className="absolute top-3 right-3 rounded-full bg-[var(--color-orange-500)] text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 shadow">PDF</span>
-                        </div>
-                      ) : (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={cover.url}
-                          alt={t}
-                          loading="lazy"
-                          className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                        />
-                      )}
-                      {media.length > 1 && (
-                        <span className="absolute bottom-3 right-3 rounded-full bg-black/55 text-white text-[11px] px-2 py-0.5 backdrop-blur-sm">
-                          +{media.length - 1}
-                        </span>
-                      )}
-                      {it.year && (
-                        <span className="absolute top-3 left-3 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)] border border-[var(--color-orange-300)]/60">
-                          {it.year}
-                        </span>
-                      )}
-                      {it.field && (
-                        <span className="absolute top-3 right-3 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[var(--color-ink-soft)] border border-[var(--color-orange-300)]/60">
-                          {it.field}
-                        </span>
-                      )}
+                  <button
+                    type="button"
+                    onClick={() => toggleField(field)}
+                    aria-expanded={isOpen}
+                    className="w-full px-5 py-4 flex items-center justify-between hover:bg-[var(--color-orange-50)] transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">📁</span>
+                      <h3 className="text-base md:text-lg font-semibold text-[var(--color-ink)]">{field}</h3>
                     </div>
-                  ) : null}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-[var(--color-ink-soft)] rounded-full px-2 py-0.5 border border-[var(--color-orange-300)]/40">
+                        {fieldItems.length}
+                      </span>
+                      <span className="text-[var(--color-orange-500)] transition-transform" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                        ▼
+                      </span>
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-[var(--color-orange-300)]/20">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {fieldItems.map((it, i) => {
+                          const t = lang === "ar" ? it.titleAr : it.titleEn;
+                          const d = lang === "ar" ? it.descAr : it.descEn;
+                          const media = parseProjectMedia(it);
+                          const cover = media[0];
+                          const hasMedia = Boolean(cover);
+                          return (
+                            <motion.article
+                              key={it.id}
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.35, delay: i * 0.05 }}
+                              onClick={() => {
+                                if (hasMedia) setLightbox({ media, title: t });
+                              }}
+                              role={hasMedia ? "button" : undefined}
+                              tabIndex={hasMedia ? 0 : undefined}
+                              onKeyDown={(e) => {
+                                if (!hasMedia) return;
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  setLightbox({ media, title: t });
+                                }
+                              }}
+                              className={`group relative flex flex-col overflow-hidden rounded-xl border border-[var(--color-orange-300)]/40 bg-white hover:border-[var(--color-orange-500)] hover:shadow-[0_18px_50px_-20px_rgba(217,112,26,0.4)] transition ${hasMedia ? "cursor-pointer" : ""}`}
+                            >
+                              {hasMedia && cover ? (
+                                <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
+                                  {cover.type === "video" ? (
+                                    // eslint-disable-next-line jsx-a11y/media-has-caption
+                                    <video
+                                      src={cover.url}
+                                      muted
+                                      playsInline
+                                      preload="metadata"
+                                      className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
+                                    />
+                                  ) : cover.type === "pdf" ? (
+                                    <div className="absolute inset-0 bg-white">
+                                      <iframe
+                                        src={`${cover.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                                        title={t}
+                                        className="size-full pointer-events-none"
+                                      />
+                                      <span className="absolute top-3 right-3 rounded-full bg-[var(--color-orange-500)] text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 shadow">PDF</span>
+                                    </div>
+                                  ) : (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img
+                                      src={cover.url}
+                                      alt={t}
+                                      loading="lazy"
+                                      className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                                    />
+                                  )}
+                                  {media.length > 1 && (
+                                    <span className="absolute bottom-3 right-3 rounded-full bg-black/55 text-white text-[11px] px-2 py-0.5 backdrop-blur-sm">
+                                      +{media.length - 1}
+                                    </span>
+                                  )}
+                                  {it.year && (
+                                    <span className="absolute top-3 left-3 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)] border border-[var(--color-orange-300)]/60">
+                                      {it.year}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : null}
 
-                  <div className={`flex items-start gap-4 p-5 ${hasMedia ? "" : "md:p-6"}`}>
-                    <div className="flex-1 min-w-0">
-                      {!hasMedia && (
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {it.year && (
-                            <span className="text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)]">
-                              {it.year}
-                            </span>
-                          )}
-                          {it.field && (
-                            <span className="text-[11px] font-medium tracking-wide text-[var(--color-ink-soft)] px-2 py-0.5 rounded-full border border-[var(--color-orange-300)]/40">
-                              {it.field}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      <h3 className={`${hasMedia ? "" : "mt-1"} text-base md:text-lg font-semibold text-[var(--color-ink)] leading-snug`}>
-                        {t}
-                      </h3>
-                      {d && (
-                        <p className="mt-1.5 text-[13px] md:text-sm leading-relaxed text-[var(--color-ink-soft)]">
-                          {d}
-                        </p>
-                      )}
+                              <div className={`flex items-start gap-4 p-4 ${hasMedia ? "" : "md:p-5"}`}>
+                                <div className="flex-1 min-w-0">
+                                  {!hasMedia && it.year && (
+                                    <span className="text-[11px] font-semibold tracking-wide text-[var(--color-orange-600)]">
+                                      {it.year}
+                                    </span>
+                                  )}
+                                  <h3 className={`${hasMedia ? "" : "mt-1"} text-base font-semibold text-[var(--color-ink)] leading-snug`}>
+                                    {t}
+                                  </h3>
+                                  {d && (
+                                    <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
+                                      {d}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </motion.article>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                </motion.article>
+                  )}
+                </motion.div>
               );
             })}
           </div>
         )}
 
-        {hasMore && (
+        {items.length > 0 && (
           <div className="mt-6 md:mt-8 flex justify-center">
             <Link
               href={`${prefix}/projects`}
