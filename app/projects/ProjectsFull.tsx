@@ -19,6 +19,29 @@ export default function ProjectsFull({
   const p = content.projects;
   const title = lang === "ar" ? p.titleAr : p.titleEn;
   const subtitle = lang === "ar" ? p.subtitleAr : p.subtitleEn;
+  const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set(items.map(p => p.field).filter(Boolean)));
+
+  const groupedByField = items.reduce<Record<string, ProjectRow[]>>((acc, row) => {
+    const field = row.field || "General";
+    if (!acc[field]) acc[field] = [];
+    acc[field].push(row);
+    return acc;
+  }, {});
+
+  const sortedFields = Object.keys(groupedByField).sort((a, b) => {
+    if (a === "General") return 1;
+    if (b === "General") return -1;
+    return a.localeCompare(b);
+  });
+
+  const toggleField = (field: string) => {
+    setExpandedFields((prev) => {
+      const next = new Set(prev);
+      if (next.has(field)) next.delete(field);
+      else next.add(field);
+      return next;
+    });
+  };
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-12 md:py-24">
@@ -37,9 +60,38 @@ export default function ProjectsFull({
           {lang === "ar" ? "لا توجد مشاريع بعد." : "No projects yet."}
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-          {items.map((it, i) => (
-            <ProjectCard key={it.id} row={it} index={i} lang={lang} />
+        <div className="space-y-4">
+          {sortedFields.map((field) => (
+            <motion.div
+              key={field}
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl border border-[var(--color-orange-300)]/40 overflow-hidden bg-white/50 backdrop-blur-sm"
+            >
+              <button
+                onClick={() => toggleField(field)}
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-[var(--color-orange-50)] transition"
+              >
+                <h3 className="text-lg sm:text-xl font-semibold text-[var(--color-ink)]">{field}</h3>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-[var(--color-ink-soft)]">{groupedByField[field].length} {lang === "ar" ? "مشروع" : "project"}{groupedByField[field].length !== 1 ? (lang === "ar" ? "ات" : "s") : ""}</span>
+                  <span className="text-[var(--color-orange-500)] transition-transform" style={{ transform: expandedFields.has(field) ? "rotate(180deg)" : "rotate(0deg)" }}>
+                    ▼
+                  </span>
+                </div>
+              </button>
+              {expandedFields.has(field) && (
+                <div className="px-4 sm:px-6 pb-5 border-t border-[var(--color-orange-300)]/20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 pt-5">
+                    {groupedByField[field].map((it, i) => (
+                      <ProjectCard key={it.id} row={it} index={i} lang={lang} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
           ))}
         </div>
       )}
