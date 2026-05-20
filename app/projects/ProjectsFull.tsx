@@ -19,7 +19,7 @@ export default function ProjectsFull({
   const p = content.projects;
   const title = lang === "ar" ? p.titleAr : p.titleEn;
   const subtitle = lang === "ar" ? p.subtitleAr : p.subtitleEn;
-  const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set(items.map(p => p.field).filter(Boolean)));
+  const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set());
 
   const groupedByField = items.reduce<Record<string, ProjectRow[]>>((acc, row) => {
     const field = row.field || "General";
@@ -72,9 +72,13 @@ export default function ProjectsFull({
             >
               <button
                 onClick={() => toggleField(field)}
+                aria-expanded={expandedFields.has(field)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-[var(--color-orange-50)] transition"
               >
-                <h3 className="text-lg sm:text-xl font-semibold text-[var(--color-ink)]">{field}</h3>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📁</span>
+                  <h3 className="text-lg sm:text-xl font-semibold text-[var(--color-ink)]">{field}</h3>
+                </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-[var(--color-ink-soft)]">{groupedByField[field].length} {lang === "ar" ? "مشروع" : "project"}{groupedByField[field].length !== 1 ? (lang === "ar" ? "ات" : "s") : ""}</span>
                   <span className="text-[var(--color-orange-500)] transition-transform" style={{ transform: expandedFields.has(field) ? "rotate(180deg)" : "rotate(0deg)" }}>
