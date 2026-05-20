@@ -584,21 +584,29 @@ function ProjectsEditor({
   refresh: () => void;
 }) {
   const [rows, setRows] = useState<EditorRow<ProjectRow>[]>(items);
+  const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set(items.map(p => p.field).filter(Boolean)));
 
   function update(id: number, patch: Partial<ProjectRow>) {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch, _dirty: true } : r)));
   }
 
-  function addRow() {
+  function addRowToField(field: string) {
     const tempId = -Date.now();
     setRows((rs) => [
       ...rs,
       {
         id: tempId, year: "", titleAr: "", titleEn: "", descAr: "", descEn: "",
-        field: "", media: "[]",
-        sortOrder: rs.length + 1, _isNew: true, _dirty: true,
+        field, media: "[]",
+        sortOrder: rs.filter(r => r.field === field).length + 1, _isNew: true, _dirty: true,
       },
     ]);
+  }
+
+  function addNewField() {
+    const field = prompt("Enter new field name (e.g., Design, Protection Engineering, IT)");
+    if (!field) return;
+    setExpandedFields((s) => new Set([...s, field]));
+    addRowToField(field);
   }
 
   async function saveRow(row: EditorRow<ProjectRow>) {
@@ -653,51 +661,107 @@ function ProjectsEditor({
     }
   }
 
+  const groupedByField = rows.reduce<Record<string, EditorRow<ProjectRow>[]>>((acc, row) => {
+    const field = row.field || "Uncategorized";
+    if (!acc[field]) acc[field] = [];
+    acc[field].push(row);
+    return acc;
+  }, {});
+
+  const sortedFields = Object.keys(groupedByField).sort((a, b) => {
+    if (a === "Uncategorized") return 1;
+    if (b === "Uncategorized") return -1;
+    return a.localeCompare(b);
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Projects</h2>
-        <button onClick={addRow} className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 px-3 py-1.5 text-xs hover:bg-[var(--color-orange-50)]">
+        <button onClick={addNewField} className="rounded-full border border-[var(--color-orange-300)]/60 bg-white/70 px-3 py-1.5 text-xs hover:bg-[var(--color-orange-50)]">
           + Add project
         </button>
       </div>
-      {rows.map((row) => (
-        <div key={row.id} className="rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/70 p-5 space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Field label="Year" value={row.year} onChange={(v) => update(row.id, { year: v })} />
-            <Field label="Sort" type="number" value={String(row.sortOrder)} onChange={(v) => update(row.id, { sortOrder: Number(v) || 0 })} />
-            <div className="md:col-span-2">
-              <Field
-                label="Field (e.g. Protection Engineer, IT, Design)"
-                value={row.field}
-                onChange={(v) => update(row.id, { field: v })}
-              />
+      {sortedFields.map((field) => (
+        <div key={field} className="rounded-2xl border border-[var(--color-orange-300)]/40 bg-white/70 overflow-hidden">
+          <button
+            onClick={() => setExpandedFields((s) => {
+              const next = new Set(s);
+              if (next.has(field)) next.delete(field);
+              else next.add(field);
+              return next;
+            })}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-[var(--color-orange-50)] transition"
+          >
+            <h3 className="font-semibold text-[var(--color-ink)]">{field}</h3>
+            <span className="text-sm text-[var(--color-ink-soft)]">
+              {expandedFields.has(field) ? "▼" : "▶"} {groupedByField[field].length}
+            </span>
+          </button>
+          {expandedFields.has(field) && (
+            <div className="px-5 pb-4 space-y-3 border-t border-[var(--color-orange-300)]/20">
+              {groupedByField[field].map((row) => (
+                <ProjectRow key={row.id} row={row} field={field} busy={busy} onUpdate={update} onSave={saveRow} onDelete={deleteRow} flash={flash} />
+              ))}
+              <button
+                onClick={() => addRowToField(field)}
+                className="w-full text-xs px-3 py-2 rounded-lg border border-dashed border-[var(--color-orange-300)]/40 text-[var(--color-ink-soft)] hover:bg-[var(--color-orange-50)] hover:border-[var(--color-orange-300)]/60 transition"
+              >
+                + Add project to {field}
+              </button>
             </div>
-          </div>
-          <div className="grid md:grid-cols-2 gap-3">
-            <Field label="Title (AR)" value={row.titleAr} onChange={(v) => update(row.id, { titleAr: v })} />
-            <Field label="Title (EN)" value={row.titleEn} onChange={(v) => update(row.id, { titleEn: v })} />
-          </div>
-          <div className="grid md:grid-cols-2 gap-3">
-            <TextareaField label="Desc (AR)" value={row.descAr} onChange={(v) => update(row.id, { descAr: v })} />
-            <TextareaField label="Desc (EN)" value={row.descEn} onChange={(v) => update(row.id, { descEn: v })} />
-          </div>
-          <MediaGallery
-            items={projectMediaItems(row)}
-            onChange={(media) => update(row.id, { media: JSON.stringify(media) })}
-            flash={flash}
-            allowPdf
-          />
-          <div className="flex items-center justify-end gap-2">
-            <button onClick={() => deleteRow(row)} disabled={busy} className="text-xs px-3 py-1.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60">
-              Delete
-            </button>
-            <button onClick={() => saveRow(row)} disabled={busy} className="text-xs px-4 py-1.5 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white disabled:opacity-60">
-              {row._isNew ? "Create" : "Save"}
-            </button>
-          </div>
+          )}
         </div>
       ))}
+    </div>
+  );
+}
+
+function ProjectRow({
+  row,
+  field,
+  busy,
+  onUpdate,
+  onSave,
+  onDelete,
+  flash,
+}: {
+  row: EditorRow<ProjectRow>;
+  field: string;
+  busy: boolean;
+  onUpdate: (id: number, patch: Partial<ProjectRow>) => void;
+  onSave: (row: EditorRow<ProjectRow>) => void;
+  onDelete: (row: EditorRow<ProjectRow>) => void;
+  flash: (msg: string) => void;
+}) {
+  return (
+    <div className="rounded-xl border border-[var(--color-orange-300)]/30 bg-white/50 p-4 space-y-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Field label="Year" value={row.year} onChange={(v) => onUpdate(row.id, { year: v })} />
+        <Field label="Sort" type="number" value={String(row.sortOrder)} onChange={(v) => onUpdate(row.id, { sortOrder: Number(v) || 0 })} />
+      </div>
+      <div className="grid md:grid-cols-2 gap-3">
+        <Field label="Title (AR)" value={row.titleAr} onChange={(v) => onUpdate(row.id, { titleAr: v })} />
+        <Field label="Title (EN)" value={row.titleEn} onChange={(v) => onUpdate(row.id, { titleEn: v })} />
+      </div>
+      <div className="grid md:grid-cols-2 gap-3">
+        <TextareaField label="Desc (AR)" value={row.descAr} onChange={(v) => onUpdate(row.id, { descAr: v })} />
+        <TextareaField label="Desc (EN)" value={row.descEn} onChange={(v) => onUpdate(row.id, { descEn: v })} />
+      </div>
+      <MediaGallery
+        items={projectMediaItems(row)}
+        onChange={(media) => onUpdate(row.id, { media: JSON.stringify(media) })}
+        flash={flash}
+        allowPdf
+      />
+      <div className="flex items-center justify-end gap-2">
+        <button onClick={() => onDelete(row)} disabled={busy} className="text-xs px-3 py-1.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60">
+          Delete
+        </button>
+        <button onClick={() => onSave(row)} disabled={busy} className="text-xs px-4 py-1.5 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white disabled:opacity-60">
+          {row._isNew ? "Create" : "Save"}
+        </button>
+      </div>
     </div>
   );
 }
