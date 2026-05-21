@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const runtime = "nodejs";
 
-const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
+const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
 
 function r2Config() {
   const accountId = process.env.R2_ACCOUNT_ID;
@@ -31,6 +32,72 @@ function getClient(cfg: NonNullable<ReturnType<typeof r2Config>>) {
   return _client;
 }
 
+function buildKey(name: string) {
+  const safeName = name.replace(/[^a-zA-Z0-9._-]/g, "_") || "upload";
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+}
+
+function publicUrl(cfg: NonNullable<ReturnType<typeof r2Config>>, key: string) {
+  const base = cfg.publicBase.replace(/\/+$/, "");
+  return `${base}/${key}`;
+}
+
+// GET /api/admin/upload?name=foo.png&type=image/png&size=12345
+// Returns a presigned PUT URL so the browser uploads directly to R2,
+// bypassing the Vercel serverless 4.5MB request-body limit.
+export async function GET(req: Request) {
+  const cfg = r2Config();
+  if (!cfg) {
+    return NextResponse.json(
+      {
+        error:
+          "Cloudflare R2 not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL.",
+      },
+      { status: 501 },
+    );
+  }
+
+  const { searchParams } = new URL(req.url);
+  const name = searchParams.get("name") || "upload";
+  const type = searchParams.get("type") || "application/octet-stream";
+  const sizeStr = searchParams.get("size");
+  const size = sizeStr ? Number(sizeStr) : NaN;
+
+  if (Number.isFinite(size) && size > MAX_BYTES) {
+    return NextResponse.json({ error: "file_too_large" }, { status: 413 });
+  }
+
+  const key = buildKey(name);
+
+  let uploadUrl: string;
+  try {
+    uploadUrl = await getSignedUrl(
+      getClient(cfg),
+      new PutObjectCommand({
+        Bucket: cfg.bucket,
+        Key: key,
+        ContentType: type,
+      }),
+      { expiresIn: 600 },
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { error: `presign_failed: ${err instanceof Error ? err.message : String(err)}` },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({
+    uploadUrl,
+    url: publicUrl(cfg, key),
+    key,
+    contentType: type,
+    headers: { "Content-Type": type },
+  });
+}
+
+// Legacy: POST multipart/form-data. Kept for small files / fallback,
+// but the client now prefers presigned uploads to avoid the platform body limit.
 export async function POST(req: Request) {
   const cfg = r2Config();
   if (!cfg) {
@@ -57,8 +124,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "file_too_large" }, { status: 413 });
   }
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_") || "upload";
-  const key = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+  const key = buildKey(file.name);
   const buf = Buffer.from(await file.arrayBuffer());
 
   try {
@@ -78,7 +144,5 @@ export async function POST(req: Request) {
     );
   }
 
-  const base = cfg.publicBase.replace(/\/+$/, "");
-  const url = `${base}/${key}`;
-  return NextResponse.json({ url, contentType: file.type, size: file.size });
+  return NextResponse.json({ url: publicUrl(cfg, key), contentType: file.type, size: file.size });
 }
