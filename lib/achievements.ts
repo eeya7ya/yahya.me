@@ -4,6 +4,7 @@ export type AchievementMedia = {
   url: string;
   type: "image" | "video" | "pdf";
   caption?: string;
+  thumbUrl?: string;
 };
 
 export function parseAchievementMedia(row: AchievementRow): AchievementMedia[] {
@@ -14,8 +15,18 @@ export function parseAchievementMedia(row: AchievementRow): AchievementMedia[] {
       if (Array.isArray(parsed)) {
         for (const m of parsed) {
           if (!m || typeof m.url !== "string" || !m.url) continue;
-          const type = m.type === "video" ? "video" : "image";
-          items.push({ url: m.url, type, caption: typeof m.caption === "string" ? m.caption : undefined });
+          const isPdfUrl = /\.pdf(\?|#|$)/i.test(m.url);
+          const type: AchievementMedia["type"] =
+            isPdfUrl ? "pdf" :
+            m.type === "video" ? "video" :
+            m.type === "pdf" ? "pdf" :
+            "image";
+          items.push({
+            url: m.url,
+            type,
+            caption: typeof m.caption === "string" ? m.caption : undefined,
+            thumbUrl: typeof m.thumbUrl === "string" && m.thumbUrl ? m.thumbUrl : undefined,
+          });
         }
       }
     } catch {

@@ -106,11 +106,38 @@ export default function MediaLightbox({ open, media, startIndex = 0, title, onCl
                   className="max-h-[80vh] max-w-full rounded-lg bg-black"
                 />
               ) : active.type === "pdf" ? (
-                <iframe
-                  src={active.url}
-                  title={active.caption ?? title ?? "PDF"}
-                  className="h-[80vh] w-[90vw] max-w-5xl rounded-lg bg-white"
-                />
+                <div className="flex flex-col items-center gap-4 max-w-full">
+                  {/* Desktop: inline PDF viewer (browser's built-in). */}
+                  <iframe
+                    src={active.url}
+                    title={active.caption ?? title ?? "PDF"}
+                    className="hidden md:block h-[80vh] w-[90vw] max-w-5xl rounded-lg bg-white"
+                  />
+                  {/* Mobile: thumbnail preview + open-in-new-tab button.
+                      Mobile browsers don't render PDFs inside iframes. */}
+                  <div className="md:hidden flex flex-col items-center gap-4 max-w-[90vw]">
+                    {active.thumbUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={active.thumbUrl}
+                        alt={active.caption ?? title ?? "PDF preview"}
+                        className="max-h-[60vh] max-w-full rounded-lg bg-white object-contain shadow-2xl"
+                      />
+                    ) : (
+                      <div className="grid place-items-center size-40 rounded-2xl bg-white text-5xl text-[var(--color-orange-600)] shadow-2xl">
+                        📄
+                      </div>
+                    )}
+                  </div>
+                  <a
+                    href={active.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition md:hidden"
+                  >
+                    Open PDF
+                  </a>
+                </div>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -156,7 +183,12 @@ export default function MediaLightbox({ open, media, startIndex = 0, title, onCl
                         {m.type === "video" ? (
                           <span className="absolute inset-0 grid place-items-center bg-black text-white text-base">▶</span>
                         ) : m.type === "pdf" ? (
-                          <span className="absolute inset-0 grid place-items-center bg-white text-[var(--color-orange-700)] text-base">📄</span>
+                          m.thumbUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={m.thumbUrl} alt="" className="absolute inset-0 size-full object-cover" />
+                          ) : (
+                            <span className="absolute inset-0 grid place-items-center bg-white text-[var(--color-orange-700)] text-base">📄</span>
+                          )
                         ) : (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={m.url} alt="" className="absolute inset-0 size-full object-cover" />

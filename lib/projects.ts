@@ -4,11 +4,8 @@ export type ProjectMedia = {
   url: string;
   type: "image" | "video" | "pdf";
   caption?: string;
+  thumbUrl?: string;
 };
-
-function inferTypeFromUrl(url: string): ProjectMedia["type"] {
-  return /\.pdf(\?|#|$)/i.test(url) ? "pdf" : "image";
-}
 
 export function parseProjectMedia(row: ProjectRow): ProjectMedia[] {
   const items: ProjectMedia[] = [];
@@ -25,7 +22,12 @@ export function parseProjectMedia(row: ProjectRow): ProjectMedia[] {
         m.type === "pdf" ? "pdf" :
         m.type === "image" ? "image" :
         "image";
-      items.push({ url: m.url, type, caption: typeof m.caption === "string" ? m.caption : undefined });
+      items.push({
+        url: m.url,
+        type,
+        caption: typeof m.caption === "string" ? m.caption : undefined,
+        thumbUrl: typeof m.thumbUrl === "string" && m.thumbUrl ? m.thumbUrl : undefined,
+      });
     }
   } catch {
     // ignore

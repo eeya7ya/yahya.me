@@ -35,6 +35,7 @@ function parseMediaField(raw: string | undefined | null): MediaItem[] {
           m.type === "pdf" ? "pdf" :
           "image",
         caption: typeof m.caption === "string" ? m.caption : undefined,
+        thumbUrl: typeof m.thumbUrl === "string" && m.thumbUrl ? m.thumbUrl : undefined,
       })) as MediaItem[];
   } catch {
     return [];
@@ -768,12 +769,11 @@ function ProjectRow({
 
 /* ---------------- Media: upload + URL input ---------------- */
 
-async function uploadFile(file: File): Promise<string> {
-  const contentType = file.type || "application/octet-stream";
+async function uploadBlob(blob: Blob, name: string, contentType: string): Promise<string> {
   const qs = new URLSearchParams({
-    name: file.name,
+    name,
     type: contentType,
-    size: String(file.size),
+    size: String(blob.size),
   });
   const presignRes = await fetch(`/api/admin/upload?${qs.toString()}`);
   if (!presignRes.ok) {
@@ -788,13 +788,27 @@ async function uploadFile(file: File): Promise<string> {
 
   const putRes = await fetch(uploadUrl, {
     method: "PUT",
-    body: file,
+    body: blob,
     headers: headers ?? { "Content-Type": contentType },
   });
   if (!putRes.ok) {
     throw new Error(`Upload failed (${putRes.status})`);
   }
   return url;
+}
+
+async function uploadFile(file: File): Promise<string> {
+  return uploadBlob(file, file.name, file.type || "application/octet-stream");
+}
+
+async function makeAndUploadPdfThumb(
+  pdfBlobOrFile: Blob | File,
+  baseName: string,
+): Promise<string> {
+  const { renderPdfFirstPageToJpeg } = await import("@/lib/pdf-thumb");
+  const thumb = await renderPdfFirstPageToJpeg(pdfBlobOrFile);
+  const safe = baseName.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_") || "pdf";
+  return uploadBlob(thumb, `${safe}.thumb.jpg`, "image/jpeg");
 }
 
 function UrlUploadField({
@@ -899,8 +913,18 @@ function MediaGallery({
     try {
       const added: MediaItem[] = [];
       for (const f of Array.from(files)) {
+        const type = inferType(f);
         const url = await uploadFile(f);
-        added.push({ url, type: inferType(f) });
+        const next: MediaItem = { url, type };
+        if (type === "pdf") {
+          try {
+            next.thumbUrl = await makeAndUploadPdfThumb(f, f.name);
+          } catch (err) {
+            console.warn("pdf thumbnail failed", err);
+            flash("Uploaded PDF, but thumbnail render failed");
+          }
+        }
+        added.push(next);
       }
       onChange([...items, ...added]);
       flash("Uploaded");
@@ -909,6 +933,24 @@ function MediaGallery({
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function regenerateThumb(i: number) {
+    const m = items[i];
+    if (!m || m.type !== "pdf") return;
+    setBusy(true);
+    try {
+      const { fetchPdfAsBlob } = await import("@/lib/pdf-thumb");
+      const blob = await fetchPdfAsBlob(m.url);
+      const baseName = m.url.split("/").pop() ?? "pdf";
+      const thumbUrl = await makeAndUploadPdfThumb(blob, baseName);
+      updateItem(i, { thumbUrl });
+      flash("Thumbnail generated");
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Thumbnail failed (CORS?)");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -978,11 +1020,12 @@ function MediaGallery({
                   rel="noreferrer"
                   className="relative block h-32 w-full overflow-hidden rounded-lg bg-white border border-[var(--color-orange-300)]/40"
                 >
-                  <iframe
-                    src={`${m.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                    title={m.caption || "PDF preview"}
-                    className="size-full pointer-events-none"
-                  />
+                  {m.thumbUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={m.thumbUrl} alt={m.caption || "PDF preview"} className="size-full object-cover" />
+                  ) : (
+                    <span className="absolute inset-0 grid place-items-center text-3xl text-[var(--color-orange-600)]">📄</span>
+                  )}
                   <span className="absolute top-1 right-1 rounded-full bg-[var(--color-orange-500)] text-white text-[9px] font-semibold tracking-wider uppercase px-1.5 py-0.5 shadow">PDF</span>
                 </a>
               ) : (
@@ -996,15 +1039,28 @@ function MediaGallery({
                 placeholder="Caption (optional)"
                 className="w-full rounded-md border border-[var(--color-orange-300)]/40 bg-white px-2 py-1 text-xs"
               />
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[var(--color-ink-soft)]">{m.type}</span>
-                <button
-                  type="button"
-                  onClick={() => removeItem(i)}
-                  className="px-2 py-0.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50"
-                >
-                  Remove
-                </button>
+              <div className="flex items-center justify-between text-xs gap-2">
+                <span className="text-[var(--color-ink-soft)] shrink-0">{m.type}</span>
+                <div className="flex items-center gap-1.5">
+                  {m.type === "pdf" && (
+                    <button
+                      type="button"
+                      onClick={() => regenerateThumb(i)}
+                      disabled={busy}
+                      className="px-2 py-0.5 rounded-full border border-[var(--color-orange-300)]/60 text-[var(--color-orange-700)] hover:bg-[var(--color-orange-50)] disabled:opacity-60"
+                      title="Render the PDF's first page and store it as the cover"
+                    >
+                      {m.thumbUrl ? "Re-render" : "Generate thumb"}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    className="px-2 py-0.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             </li>
           ))}
