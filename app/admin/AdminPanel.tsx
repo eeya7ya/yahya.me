@@ -769,15 +769,32 @@ function ProjectRow({
 /* ---------------- Media: upload + URL input ---------------- */
 
 async function uploadFile(file: File): Promise<string> {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || `Upload failed (${res.status})`);
+  const contentType = file.type || "application/octet-stream";
+  const qs = new URLSearchParams({
+    name: file.name,
+    type: contentType,
+    size: String(file.size),
+  });
+  const presignRes = await fetch(`/api/admin/upload?${qs.toString()}`);
+  if (!presignRes.ok) {
+    const data = await presignRes.json().catch(() => ({}));
+    throw new Error(data.error || `Upload failed (${presignRes.status})`);
   }
-  const data = (await res.json()) as { url: string };
-  return data.url;
+  const { uploadUrl, url, headers } = (await presignRes.json()) as {
+    uploadUrl: string;
+    url: string;
+    headers?: Record<string, string>;
+  };
+
+  const putRes = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: headers ?? { "Content-Type": contentType },
+  });
+  if (!putRes.ok) {
+    throw new Error(`Upload failed (${putRes.status})`);
+  }
+  return url;
 }
 
 function UrlUploadField({
