@@ -28,6 +28,11 @@ function getClient(cfg: NonNullable<ReturnType<typeof r2Config>>) {
       accessKeyId: cfg.accessKeyId,
       secretAccessKey: cfg.secretAccessKey,
     },
+    // R2 does not implement the new default flexible-checksum flow; the SDK
+    // would otherwise sign x-amz-sdk-checksum-algorithm into the URL and the
+    // browser PUT would fail integrity validation.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
   });
   return _client;
 }
