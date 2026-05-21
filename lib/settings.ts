@@ -18,7 +18,7 @@ export type SiteContent = {
     titleAr: string; titleEn: string;
     bodyAr: string;  bodyEn: string;
     valuesAr: string[]; valuesEn: string[];
-    media: { url: string; type: "image" | "video" | "pdf"; caption?: string }[];
+    media: { url: string; type: "image" | "video" | "pdf"; caption?: string; thumbUrl?: string }[];
   };
   roadmap: {
     titleAr: string; titleEn: string;

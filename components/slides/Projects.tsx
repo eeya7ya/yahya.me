@@ -8,6 +8,7 @@ import type { ProjectRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
 import { parseProjectMedia, type ProjectMedia } from "@/lib/projects";
 import MediaLightbox from "@/components/MediaLightbox";
+import PdfCoverPlaceholder from "@/components/PdfCoverPlaceholder";
 
 export default function Projects({
   lang,
@@ -140,11 +141,17 @@ export default function Projects({
                                     />
                                   ) : cover.type === "pdf" ? (
                                     <div className="absolute inset-0 bg-white">
-                                      <iframe
-                                        src={`${cover.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                                        title={t}
-                                        className="size-full pointer-events-none"
-                                      />
+                                      {cover.thumbUrl ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img
+                                          src={cover.thumbUrl}
+                                          alt={t}
+                                          loading="lazy"
+                                          className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                                        />
+                                      ) : (
+                                        <PdfCoverPlaceholder url={cover.url} />
+                                      )}
                                       <span className="absolute top-3 right-3 rounded-full bg-[var(--color-orange-500)] text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 shadow">PDF</span>
                                     </div>
                                   ) : (
