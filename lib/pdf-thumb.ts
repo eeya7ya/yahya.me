@@ -33,16 +33,12 @@ function blobFromCanvas(canvas: HTMLCanvasElement, type: string, quality: number
   });
 }
 
-export async function renderPdfFirstPageToJpeg(
-  input: Blob | ArrayBuffer,
-  opts: { width?: number; quality?: number } = {},
-): Promise<Blob> {
-  const pdfjs = await loadPdfJs();
-  const data = await readAsArrayBuffer(input);
+type PdfDocument = Awaited<ReturnType<PdfJsModule["getDocument"]>["promise"]>;
 
-  // pdfjs mutates the buffer; pass a copy so the caller's File/Blob stays usable.
-  const loadingTask = pdfjs.getDocument({ data: data.slice(0) });
-  const doc = await loadingTask.promise;
+async function firstPageToJpeg(
+  doc: PdfDocument,
+  opts: { width?: number; quality?: number },
+): Promise<Blob> {
   try {
     const page = await doc.getPage(1);
     const baseViewport = page.getViewport({ scale: 1 });
@@ -66,6 +62,37 @@ export async function renderPdfFirstPageToJpeg(
     await doc.destroy();
   }
 }
+
+export async function renderPdfFirstPageToJpeg(
+  input: Blob | ArrayBuffer,
+  opts: { width?: number; quality?: number } = {},
+): Promise<Blob> {
+  const pdfjs = await loadPdfJs();
+  const data = await readAsArrayBuffer(input);
+  // pdfjs mutates the buffer; pass a copy so the caller's File/Blob stays usable.
+  const doc = await pdfjs.getDocument({ data: data.slice(0) }).promise;
+  return firstPageToJpeg(doc, opts);
+}
+
+// Renders the first page straight from a URL using HTTP range requests so only
+// the bytes needed for page 1 are fetched — far faster than downloading the
+// whole PDF. Goes through the same-origin proxy (range-capable) to sidestep
+// missing CORS headers on the bucket.
+export async function renderPdfFirstPageFromUrl(
+  url: string,
+  opts: { width?: number; quality?: number } = {},
+): Promise<Blob> {
+  const pdfjs = await loadPdfJs();
+  const proxied = `/api/pdf-proxy?url=${encodeURIComponent(url)}`;
+  const doc = await pdfjs.getDocument({
+    url: proxied,
+    rangeChunkSize: 65536,
+    disableAutoFetch: true,
+    disableStream: false,
+  }).promise;
+  return firstPageToJpeg(doc, opts);
+}
+
 
 // Tries the URL directly first; on CORS / network failure, falls back to the
 // same-origin proxy so PDFs without CORS headers on the bucket can still be

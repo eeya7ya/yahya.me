@@ -19,9 +19,8 @@ function renderThumb(url: string): Promise<string> {
   let p = inflight.get(url);
   if (!p) {
     p = (async () => {
-      const { fetchPdfAsBlob, renderPdfFirstPageToJpeg } = await import("@/lib/pdf-thumb");
-      const blob = await fetchPdfAsBlob(url);
-      const jpeg = await renderPdfFirstPageToJpeg(blob, { width: 800 });
+      const { renderPdfFirstPageFromUrl } = await import("@/lib/pdf-thumb");
+      const jpeg = await renderPdfFirstPageFromUrl(url, { width: 800 });
       const obj = URL.createObjectURL(jpeg);
       cache.set(url, obj);
       return obj;
@@ -90,7 +89,12 @@ export default function PdfThumb({
           className={`absolute inset-0 size-full object-${fit} ${fit === "cover" ? "transition-transform duration-700 group-hover:scale-[1.04]" : ""}`}
         />
       ) : (
-        <PdfCoverPlaceholder url={url} />
+        <>
+          <PdfCoverPlaceholder url={url} />
+          {!failed && (
+            <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-transparent via-white/40 to-transparent" />
+          )}
+        </>
       )}
     </div>
   );
