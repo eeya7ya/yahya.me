@@ -68,8 +68,8 @@ export async function renderPdfFirstPageToJpeg(
 }
 
 // Tries the URL directly first; on CORS / network failure, falls back to the
-// same-origin admin proxy so existing PDFs without CORS headers on the bucket
-// can still be rendered.
+// same-origin proxy so PDFs without CORS headers on the bucket can still be
+// rendered (works on both the public site and admin).
 export async function fetchPdfAsBlob(url: string): Promise<Blob> {
   try {
     const res = await fetch(url, { mode: "cors" });
@@ -77,7 +77,7 @@ export async function fetchPdfAsBlob(url: string): Promise<Blob> {
   } catch {
     // fall through to proxy
   }
-  const proxied = `/api/admin/pdf-proxy?url=${encodeURIComponent(url)}`;
+  const proxied = `/api/pdf-proxy?url=${encodeURIComponent(url)}`;
   const res = await fetch(proxied);
   if (!res.ok) throw new Error(`fetch_pdf_failed (${res.status})`);
   return await res.blob();
