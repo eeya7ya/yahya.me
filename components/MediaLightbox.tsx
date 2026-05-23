@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { AchievementMedia } from "@/lib/achievements";
+import PdfThumb from "@/components/PdfThumb";
 
 type Props = {
   open: boolean;
@@ -124,9 +125,12 @@ export default function MediaLightbox({ open, media, startIndex = 0, title, onCl
                         className="max-h-[60vh] max-w-full rounded-lg bg-white object-contain shadow-2xl"
                       />
                     ) : (
-                      <div className="grid place-items-center size-40 rounded-2xl bg-white text-5xl text-[var(--color-orange-600)] shadow-2xl">
-                        📄
-                      </div>
+                      <PdfThumb
+                        url={active.url}
+                        alt={active.caption ?? title ?? "PDF preview"}
+                        fit="contain"
+                        className="relative w-[78vw] max-w-sm aspect-[3/4] rounded-lg bg-white object-contain shadow-2xl overflow-hidden"
+                      />
                     )}
                   </div>
                   <a

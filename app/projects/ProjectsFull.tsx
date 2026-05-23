@@ -7,7 +7,7 @@ import type { ProjectRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
 import { parseProjectMedia, type ProjectMedia } from "@/lib/projects";
 import MediaLightbox from "@/components/MediaLightbox";
-import PdfCoverPlaceholder from "@/components/PdfCoverPlaceholder";
+import PdfThumb from "@/components/PdfThumb";
 
 export default function ProjectsFull({
   content,
@@ -169,7 +169,7 @@ function ProjectCard({
                     className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
                 ) : (
-                  <PdfCoverPlaceholder url={cover.url} />
+                  <PdfThumb url={cover.url} alt={t} />
                 )}
                 <span className="absolute top-3 right-3 rounded-full bg-[var(--color-orange-500)] text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 shadow">PDF</span>
               </div>

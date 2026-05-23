@@ -2,18 +2,20 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// Streams a remote PDF back through the same origin so the admin browser can
-// fetch it without CORS headers on the R2 bucket. Used by the "Generate
-// thumbnail" button to read first-page bytes for client-side PDF.js rendering.
+// Streams a remote PDF back through the same origin so the browser can fetch
+// its bytes without CORS headers on the R2 bucket. Used for client-side
+// first-page thumbnail rendering (PDF.js) on both the public site and admin.
+// Locked to the configured R2 public host(s); those files are already public.
 
 function isAllowedHost(host: string): boolean {
   const publicBase = process.env.R2_PUBLIC_URL;
-  if (!publicBase) return false;
-  try {
-    const allowed = new URL(publicBase).host;
-    if (host === allowed) return true;
-  } catch {
-    // ignore malformed env
+  if (publicBase) {
+    try {
+      const allowed = new URL(publicBase).host;
+      if (host === allowed) return true;
+    } catch {
+      // ignore malformed env
+    }
   }
   // also accept any *.r2.dev / *.r2.cloudflarestorage.com used by R2 public urls
   return /\.r2\.dev$/i.test(host) || /\.r2\.cloudflarestorage\.com$/i.test(host);
@@ -51,7 +53,9 @@ export async function GET(req: Request) {
     status: 200,
     headers: {
       "Content-Type": upstream.headers.get("content-type") ?? "application/pdf",
-      "Cache-Control": "no-store",
+      // Allow the browser/CDN to cache the proxied PDF so repeat thumbnail
+      // renders don't re-download the whole file.
+      "Cache-Control": "public, max-age=86400, immutable",
     },
   });
 }
