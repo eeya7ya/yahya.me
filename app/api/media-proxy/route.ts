@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// Streams a remote PDF back through the same origin so the browser can fetch
-// its bytes without CORS headers on the R2 bucket. Used for client-side
-// first-page thumbnail rendering (PDF.js) on both the public site and admin.
+// Streams a remote file (PDF or video) back through the same origin so the
+// browser can fetch its bytes without CORS headers on the R2 bucket. Used for
+// client-side first-page PDF thumbnails and first-frame video posters on both
+// the public site and admin. Same-origin means canvas captures aren't tainted.
 // Locked to the configured R2 public host(s); those files are already public.
 
 function isAllowedHost(host: string): boolean {
@@ -39,8 +40,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "host_not_allowed" }, { status: 403 });
   }
 
-  // Forward the browser's Range header so PDF.js can fetch only the bytes it
-  // needs for the first page instead of downloading the whole file.
+  // Forward the browser's Range header so the client fetches only the bytes it
+  // needs (PDF first page / video first frame) instead of the whole file.
   const range = req.headers.get("range");
 
   let upstream: Response;
@@ -56,13 +57,13 @@ export async function GET(req: Request) {
   }
 
   const headers: Record<string, string> = {
-    "Content-Type": upstream.headers.get("content-type") ?? "application/pdf",
-    // Allow the browser/CDN to cache the proxied PDF so repeat thumbnail
-    // renders don't re-download the same bytes.
+    "Content-Type": upstream.headers.get("content-type") ?? "application/octet-stream",
+    // Allow the browser/CDN to cache the proxied bytes so repeat thumbnail
+    // renders don't re-download the same data.
     "Cache-Control": "public, max-age=86400, immutable",
     "Accept-Ranges": upstream.headers.get("accept-ranges") ?? "bytes",
   };
-  // Pass through range metadata so PDF.js sees a real 206 partial response.
+  // Pass through range metadata so the client sees a real 206 partial response.
   for (const h of ["content-range", "content-length", "etag"]) {
     const v = upstream.headers.get(h);
     if (v) headers[h] = v;

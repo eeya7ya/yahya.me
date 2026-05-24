@@ -83,7 +83,7 @@ export async function renderPdfFirstPageFromUrl(
   opts: { width?: number; quality?: number } = {},
 ): Promise<Blob> {
   const pdfjs = await loadPdfJs();
-  const proxied = `/api/pdf-proxy?url=${encodeURIComponent(url)}`;
+  const proxied = `/api/media-proxy?url=${encodeURIComponent(url)}`;
   const doc = await pdfjs.getDocument({
     url: proxied,
     rangeChunkSize: 65536,
@@ -104,7 +104,7 @@ export async function fetchPdfAsBlob(url: string): Promise<Blob> {
   } catch {
     // fall through to proxy
   }
-  const proxied = `/api/pdf-proxy?url=${encodeURIComponent(url)}`;
+  const proxied = `/api/media-proxy?url=${encodeURIComponent(url)}`;
   const res = await fetch(proxied);
   if (!res.ok) throw new Error(`fetch_pdf_failed (${res.status})`);
   return await res.blob();
