@@ -8,6 +8,7 @@ import type { SiteContent } from "@/lib/settings";
 import { parseProjectMedia, type ProjectMedia } from "@/lib/projects";
 import MediaLightbox from "@/components/MediaLightbox";
 import PdfThumb from "@/components/PdfThumb";
+import VideoCover from "@/components/VideoCover";
 
 export default function ProjectsFull({
   content,
@@ -150,14 +151,7 @@ function ProjectCard({
         {hasMedia && cover && (
           <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
             {cover.type === "video" ? (
-              // eslint-disable-next-line jsx-a11y/media-has-caption
-              <video
-                src={cover.url}
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
-              />
+              <VideoCover url={cover.url} />
             ) : cover.type === "pdf" ? (
               <div className="absolute inset-0 bg-white">
                 {cover.thumbUrl ? (
