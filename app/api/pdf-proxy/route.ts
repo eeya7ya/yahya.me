@@ -39,9 +39,15 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "host_not_allowed" }, { status: 403 });
   }
 
+  // Forward the browser's Range header so PDF.js can fetch only the bytes it
+  // needs for the first page instead of downloading the whole file.
+  const range = req.headers.get("range");
+
   let upstream: Response;
   try {
-    upstream = await fetch(parsed.toString());
+    upstream = await fetch(parsed.toString(), {
+      headers: range ? { Range: range } : undefined,
+    });
   } catch (err) {
     return NextResponse.json({ error: `fetch_failed: ${err instanceof Error ? err.message : String(err)}` }, { status: 502 });
   }
@@ -49,13 +55,18 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: `upstream_${upstream.status}` }, { status: 502 });
   }
 
-  return new Response(upstream.body, {
-    status: 200,
-    headers: {
-      "Content-Type": upstream.headers.get("content-type") ?? "application/pdf",
-      // Allow the browser/CDN to cache the proxied PDF so repeat thumbnail
-      // renders don't re-download the whole file.
-      "Cache-Control": "public, max-age=86400, immutable",
-    },
-  });
+  const headers: Record<string, string> = {
+    "Content-Type": upstream.headers.get("content-type") ?? "application/pdf",
+    // Allow the browser/CDN to cache the proxied PDF so repeat thumbnail
+    // renders don't re-download the same bytes.
+    "Cache-Control": "public, max-age=86400, immutable",
+    "Accept-Ranges": upstream.headers.get("accept-ranges") ?? "bytes",
+  };
+  // Pass through range metadata so PDF.js sees a real 206 partial response.
+  for (const h of ["content-range", "content-length", "etag"]) {
+    const v = upstream.headers.get(h);
+    if (v) headers[h] = v;
+  }
+
+  return new Response(upstream.body, { status: upstream.status, headers });
 }
