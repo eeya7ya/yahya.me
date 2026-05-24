@@ -7,81 +7,104 @@
 // isn't tainted (cross-origin draws would throw on toBlob).
 
 import { useEffect, useRef, useState } from "react";
+import { getCachedThumb, putCachedThumb } from "@/lib/thumb-cache";
 
 const cache = new Map<string, string>();
 const inflight = new Map<string, Promise<string>>();
+
+// Decodes one frame from the video and returns it as a JPEG blob. Tries the
+// CDN directly (crossOrigin so the canvas isn't tainted); if the bucket lacks
+// CORS the draw taints the canvas and toBlob throws, so we retry through the
+// same-origin proxy.
+function captureBlob(src: string, crossOrigin: boolean): Promise<Blob> {
+  return new Promise<Blob>((resolve, reject) => {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    if (crossOrigin) video.crossOrigin = "anonymous";
+    video.src = src;
+
+    let settled = false;
+    const cleanup = () => {
+      video.removeAttribute("src");
+      video.load();
+    };
+    const fail = (err: unknown) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup();
+      reject(err);
+    };
+    const grab = () => {
+      if (settled) return;
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (!w || !h) return fail(new Error("no_dimensions"));
+      const targetW = Math.min(700, w);
+      const canvas = document.createElement("canvas");
+      canvas.width = targetW;
+      canvas.height = Math.round((h / w) * targetW);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return fail(new Error("no_ctx"));
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (b) => {
+            if (!b) return fail(new Error("toBlob_null"));
+            settled = true;
+            clearTimeout(timer);
+            cleanup();
+            resolve(b);
+          },
+          "image/jpeg",
+          0.8,
+        );
+      } catch (err) {
+        fail(err); // likely a tainted-canvas SecurityError
+      }
+    };
+
+    video.onloadeddata = () => {
+      const t = Math.min(0.5, (video.duration || 1) / 4);
+      video.onseeked = () => {
+        video.onseeked = null;
+        grab();
+      };
+      try {
+        video.currentTime = t;
+      } catch {
+        grab();
+      }
+    };
+    video.onerror = () => fail(new Error("video_error"));
+    const timer = setTimeout(() => fail(new Error("timeout")), 15000);
+  });
+}
 
 function capturePoster(url: string): Promise<string> {
   const cached = cache.get(url);
   if (cached) return Promise.resolve(cached);
   let p = inflight.get(url);
   if (!p) {
-    p = new Promise<string>((resolve, reject) => {
-      const video = document.createElement("video");
-      video.muted = true;
-      video.playsInline = true;
-      video.preload = "auto";
-      video.src = `/api/media-proxy?url=${encodeURIComponent(url)}`;
-
-      let settled = false;
-      const cleanup = () => {
-        video.removeAttribute("src");
-        video.load();
-      };
-      const fail = (err: unknown) => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timer);
-        cleanup();
-        reject(err);
-      };
-      const grab = () => {
-        if (settled) return;
-        const w = video.videoWidth;
-        const h = video.videoHeight;
-        if (!w || !h) return fail(new Error("no_dimensions"));
-        const targetW = Math.min(800, w);
-        const canvas = document.createElement("canvas");
-        canvas.width = targetW;
-        canvas.height = Math.round((h / w) * targetW);
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return fail(new Error("no_ctx"));
-        try {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(
-            (b) => {
-              if (!b) return fail(new Error("toBlob_null"));
-              const obj = URL.createObjectURL(b);
-              cache.set(url, obj);
-              settled = true;
-              clearTimeout(timer);
-              cleanup();
-              resolve(obj);
-            },
-            "image/jpeg",
-            0.82,
-          );
-        } catch (err) {
-          fail(err);
-        }
-      };
-
-      video.onloadeddata = () => {
-        // Seek a little in to skip black/blank intro frames.
-        const t = Math.min(0.5, (video.duration || 1) / 4);
-        video.onseeked = () => {
-          video.onseeked = null;
-          grab();
-        };
-        try {
-          video.currentTime = t;
-        } catch {
-          grab();
-        }
-      };
-      video.onerror = () => fail(new Error("video_error"));
-      const timer = setTimeout(() => fail(new Error("timeout")), 15000);
-    });
+    p = (async () => {
+      const persisted = await getCachedThumb(url, "video");
+      if (persisted) {
+        cache.set(url, persisted);
+        return persisted;
+      }
+      let blob: Blob;
+      try {
+        blob = await captureBlob(url, true); // direct CDN
+      } catch {
+        blob = await captureBlob(`/api/media-proxy?url=${encodeURIComponent(url)}`, false);
+      }
+      await putCachedThumb(url, "video", blob);
+      const obj = URL.createObjectURL(blob);
+      cache.set(url, obj);
+      return obj;
+    })();
     inflight.set(url, p);
     void p.finally(() => inflight.delete(url));
   }

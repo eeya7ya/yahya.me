@@ -7,9 +7,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import PdfCoverPlaceholder from "./PdfCoverPlaceholder";
+import { getCachedThumb, putCachedThumb } from "@/lib/thumb-cache";
 
-// Cache rendered object URLs per source PDF for the session so repeat mounts
-// (and revisits within a page) don't re-fetch / re-render.
+// In-memory cache of object URLs for the session; backed by Cache Storage so
+// the slow first render is reused across reloads and pages.
 const cache = new Map<string, string>();
 const inflight = new Map<string, Promise<string>>();
 
@@ -19,8 +20,14 @@ function renderThumb(url: string): Promise<string> {
   let p = inflight.get(url);
   if (!p) {
     p = (async () => {
+      const persisted = await getCachedThumb(url, "pdf");
+      if (persisted) {
+        cache.set(url, persisted);
+        return persisted;
+      }
       const { renderPdfFirstPageFromUrl } = await import("@/lib/pdf-thumb");
-      const jpeg = await renderPdfFirstPageFromUrl(url, { width: 800 });
+      const jpeg = await renderPdfFirstPageFromUrl(url, { width: 700 });
+      await putCachedThumb(url, "pdf", jpeg);
       const obj = URL.createObjectURL(jpeg);
       cache.set(url, obj);
       return obj;

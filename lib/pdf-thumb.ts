@@ -74,23 +74,15 @@ export async function renderPdfFirstPageToJpeg(
   return firstPageToJpeg(doc, opts);
 }
 
-// Renders the first page straight from a URL using HTTP range requests so only
-// the bytes needed for page 1 are fetched — far faster than downloading the
-// whole PDF. Goes through the same-origin proxy (range-capable) to sidestep
-// missing CORS headers on the bucket.
+// Renders the first page from a URL. Downloads the file once (direct from the
+// CDN when CORS allows, else through the same-origin proxy) rather than issuing
+// many small range requests through the proxy, which was far slower.
 export async function renderPdfFirstPageFromUrl(
   url: string,
   opts: { width?: number; quality?: number } = {},
 ): Promise<Blob> {
-  const pdfjs = await loadPdfJs();
-  const proxied = `/api/media-proxy?url=${encodeURIComponent(url)}`;
-  const doc = await pdfjs.getDocument({
-    url: proxied,
-    rangeChunkSize: 65536,
-    disableAutoFetch: true,
-    disableStream: false,
-  }).promise;
-  return firstPageToJpeg(doc, opts);
+  const blob = await fetchPdfAsBlob(url);
+  return renderPdfFirstPageToJpeg(blob, opts);
 }
 
 
