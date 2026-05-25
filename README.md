@@ -1,4 +1,4 @@
-# yahya.me
+# yahyakhaled.com
 
 Interactive CV for Yahya Khaled — Electrical Power Engineer.
 

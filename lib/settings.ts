@@ -70,7 +70,7 @@ export const defaultContent: SiteContent = {
   contact: {
     titleAr: dict.ar.contact.title,        titleEn: dict.en.contact.title,
     subtitleAr: dict.ar.contact.subtitle,  subtitleEn: dict.en.contact.subtitle,
-    email: "contact@yahya.me",
+    email: "contact@yahyakhaled.com",
     github: "https://github.com/eeya7ya",
     linkedin: "https://linkedin.com/in/yahya-khaled",
     website: "https://eSpark.dev",
