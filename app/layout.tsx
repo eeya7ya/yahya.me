@@ -12,12 +12,20 @@ export const metadata: Metadata = {
     template: "%s — Yahya Khaled",
   },
   description:
-    "Interactive CV — roadmap, achievements, and journey of Yahya Khaled, Electrical Power & Machines Engineer.",
+    "Yahya Khaled (يحيى خالد) — Electrical Power & Machines Engineer. Interactive CV covering his roadmap, achievements, and projects in AI solutions, electrical design, and EdTech.",
   applicationName: "Yahya Khaled",
   authors: [{ name: "Yahya Khaled", url: SITE_URL }],
   creator: "Yahya Khaled",
+  publisher: "Yahya Khaled",
+  alternates: {
+    canonical: "/",
+    languages: { en: "/", ar: "/ar", "x-default": "/" },
+  },
   keywords: [
     "Yahya Khaled",
+    "Yahya Khaled engineer",
+    "يحيى خالد",
+    "Yahya Khaled Electrical Engineer",
     "Electrical Power Engineer",
     "Electrical Machines",
     "AI Solutions",
@@ -26,6 +34,9 @@ export const metadata: Metadata = {
     "Renewable Energy",
     "eSpark.dev",
   ],
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
   openGraph: {
     type: "website",
     siteName: "Yahya Khaled",
@@ -57,22 +68,65 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const sameAs = [content.contact.github, content.contact.linkedin, content.contact.website]
     .filter((v): v is string => Boolean(v && v.trim()));
 
+  const personId = `${SITE_URL}/#person`;
+  const websiteId = `${SITE_URL}/#website`;
+  const email = content.contact.email
+    ? content.contact.email.startsWith("mailto:")
+      ? content.contact.email
+      : `mailto:${content.contact.email}`
+    : undefined;
+
   const personSchema = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Yahya Khaled",
-    alternateName: "يحيى خالد",
-    jobTitle: "Electrical Power & Machines Engineer",
-    url: SITE_URL,
-    image: `${SITE_URL}/profile.png`,
-    email: content.contact.email
-      ? content.contact.email.startsWith("mailto:")
-        ? content.contact.email
-        : `mailto:${content.contact.email}`
-      : undefined,
-    sameAs,
-    knowsAbout: ["Electrical Power Engineering", "AI Solutions", "EdTech", "Smart Grids"],
-    knowsLanguage: ["en", "ar"],
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": personId,
+        name: "Yahya Khaled",
+        alternateName: ["يحيى خالد", "Yahya Khaled Engineer"],
+        givenName: "Yahya",
+        familyName: "Khaled",
+        jobTitle: "Electrical Power & Machines Engineer",
+        description:
+          "Yahya Khaled is an Electrical Power & Machines Engineer working on AI solutions, electrical design, and EdTech.",
+        url: SITE_URL,
+        image: `${SITE_URL}/profile.png`,
+        email,
+        sameAs,
+        worksFor: content.contact.website
+          ? { "@type": "Organization", name: "eSpark.dev", url: content.contact.website }
+          : undefined,
+        knowsAbout: [
+          "Electrical Power Engineering",
+          "Electrical Machines",
+          "AI Solutions",
+          "EdTech",
+          "Smart Grids",
+          "Renewable Energy",
+        ],
+        knowsLanguage: ["en", "ar"],
+      },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        url: SITE_URL,
+        name: "Yahya Khaled",
+        alternateName: "يحيى خالد",
+        inLanguage: ["en", "ar"],
+        publisher: { "@id": personId },
+        about: { "@id": personId },
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": `${SITE_URL}/#profilepage`,
+        url: SITE_URL,
+        name: "Yahya Khaled — Electrical Power & Machines Engineer",
+        isPartOf: { "@id": websiteId },
+        about: { "@id": personId },
+        mainEntity: { "@id": personId },
+        inLanguage: lang,
+      },
+    ],
   };
 
   return (
