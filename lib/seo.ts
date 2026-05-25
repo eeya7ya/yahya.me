@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { dict, type Lang } from "./i18n";
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://yahya.me";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://yahyakhaled.com";
 
 export const LOCALE_MAP: Record<Lang, string> = {
   en: "en_US",

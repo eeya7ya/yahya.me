@@ -41,7 +41,7 @@ export default async function OpengraphImage() {
               fontWeight: 600,
             }}
           >
-            yahya.me
+            yahyakhaled.com
           </span>
         </div>
 
