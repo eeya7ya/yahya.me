@@ -5,7 +5,7 @@
 // works on mobile browsers, so PDFs display on both desktop and phones.
 // Falls back to the branded placeholder while loading or on failure.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import PdfCoverPlaceholder from "./PdfCoverPlaceholder";
 
 // Cache rendered object URLs per source PDF for the session so repeat mounts
@@ -44,28 +44,13 @@ export default function PdfThumb({
 }) {
   const [src, setSrc] = useState<string | null>(() => cache.get(url) ?? null);
   const [failed, setFailed] = useState(false);
-  const [inView, setInView] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
+  // Kick off the render immediately on mount. A PdfThumb only mounts once the
+  // visitor opens a folder, so there's nothing to defer — rendering right away
+  // makes the cover appear as fast as possible instead of waiting for an
+  // intersection callback.
   useEffect(() => {
-    if (src || failed || inView) return;
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setInView(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "300px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [src, failed, inView]);
-
-  useEffect(() => {
-    if (!inView || src || failed) return;
+    if (src || failed) return;
     let alive = true;
     renderThumb(url)
       .then((obj) => {
@@ -77,10 +62,10 @@ export default function PdfThumb({
     return () => {
       alive = false;
     };
-  }, [inView, url, src, failed]);
+  }, [url, src, failed]);
 
   return (
-    <div ref={ref} className={className}>
+    <div className={className}>
       {src ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img

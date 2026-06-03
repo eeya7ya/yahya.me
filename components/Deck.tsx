@@ -24,6 +24,23 @@ type Props = {
 const WHEEL_LOCK_MS = 700;
 const TOUCH_THRESHOLD = 50;
 
+// Find the nearest vertically-scrollable ancestor of an event target, so the
+// deck can let a tall slide scroll its own content instead of immediately
+// hijacking the gesture for slide navigation.
+function scrollableAncestor(target: EventTarget | null): HTMLElement | null {
+  let el = target instanceof Node ? (target as HTMLElement) : null;
+  while (el && el !== document.body) {
+    if (el.nodeType === 1) {
+      const oy = getComputedStyle(el).overflowY;
+      if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight + 1) {
+        return el;
+      }
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
+
 export default function Deck({ content, roadmap, achievements, projects, initialLang = "en" }: Props) {
   const router = useRouter();
   const [lang, setLang] = useState<Lang>(initialLang);
@@ -37,6 +54,8 @@ export default function Deck({ content, roadmap, achievements, projects, initial
   const [direction, setDirection] = useState(1);
   const lockRef = useRef(false);
   const touchStartY = useRef<number | null>(null);
+  const touchScroller = useRef<HTMLElement | null>(null);
+  const touchStartScrollTop = useRef(0);
   const t = dict[lang];
 
   const slides: ReactNode[] = [
@@ -81,6 +100,15 @@ export default function Deck({ content, roadmap, achievements, projects, initial
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < 8) return;
+      // If the hovered slide can still scroll in this direction, let it —
+      // only flip to the next/prev slide once it hits the scroll boundary.
+      const scroller = scrollableAncestor(e.target);
+      if (scroller) {
+        const down = e.deltaY > 0;
+        const atTop = scroller.scrollTop <= 0;
+        const atBottom = Math.ceil(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight;
+        if ((down && !atBottom) || (!down && !atTop)) return;
+      }
       e.preventDefault();
       go(e.deltaY > 0 ? 1 : -1);
     };
@@ -90,12 +118,21 @@ export default function Deck({ content, roadmap, achievements, projects, initial
       else if (e.key === "Home") { e.preventDefault(); setIndex(0); }
       else if (e.key === "End") { e.preventDefault(); setIndex(slides.length - 1); }
     };
-    const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY;
+      touchScroller.current = scrollableAncestor(e.target);
+      touchStartScrollTop.current = touchScroller.current?.scrollTop ?? 0;
+    };
     const onTouchEnd = (e: TouchEvent) => {
       if (touchStartY.current === null) return;
       const dy = touchStartY.current - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > TOUCH_THRESHOLD) go(dy > 0 ? 1 : -1);
+      // If the swipe scrolled the slide's own content, don't also navigate —
+      // navigation only kicks in when the content had nowhere left to scroll.
+      const scroller = touchScroller.current;
+      const scrolled = scroller ? Math.abs(scroller.scrollTop - touchStartScrollTop.current) > 2 : false;
+      if (!scrolled && Math.abs(dy) > TOUCH_THRESHOLD) go(dy > 0 ? 1 : -1);
       touchStartY.current = null;
+      touchScroller.current = null;
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });

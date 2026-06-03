@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { dict, type Lang, type Dict } from "@/lib/i18n";
+import ViewMoreButton from "@/components/ViewMoreButton";
 import type { SiteContent } from "@/lib/settings";
 
 export default function Contact({
@@ -74,13 +74,7 @@ export default function Contact({
         transition={{ delay: 0.55, duration: 0.5 }}
         className="mt-8"
       >
-        <Link
-          href={`${prefix}/contact`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur text-[var(--color-orange-600)] text-sm font-semibold px-5 py-2.5 hover:bg-[var(--color-orange-50)] transition"
-        >
-          <span>{viewMore}</span>
-          <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
-        </Link>
+        <ViewMoreButton href={`${prefix}/contact`} label={viewMore} rtl={lang === "ar"} variant="outline" />
       </motion.div>
     </div>
   );
