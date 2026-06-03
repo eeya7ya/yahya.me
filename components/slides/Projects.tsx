@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
@@ -8,7 +8,6 @@ import type { ProjectRow } from "@/lib/schema";
 import type { SiteContent } from "@/lib/settings";
 import { parseProjectMedia, type ProjectMedia } from "@/lib/projects";
 import MediaLightbox from "@/components/MediaLightbox";
-import PdfThumb from "@/components/PdfThumb";
 import VideoCover from "@/components/VideoCover";
 import ViewMoreButton from "@/components/ViewMoreButton";
 
@@ -42,26 +41,6 @@ export default function Projects({
   }, {});
 
   const sortedFields = Object.keys(groupedByField).sort((a, b) => a.localeCompare(b));
-
-  // Warm the PDF.js chunk + worker as soon as the slide mounts so the first
-  // thumbnail renders the moment a folder is opened — no library-load stall.
-  const needsPdfThumb = items.some((it) =>
-    parseProjectMedia(it).some((m) => m.type === "pdf" && !m.thumbUrl),
-  );
-  useEffect(() => {
-    if (!needsPdfThumb) return;
-    const warm = () => void import("@/lib/pdf-thumb").then((m) => m.warmPdfThumbnailer());
-    const w = window as Window & {
-      requestIdleCallback?: (cb: () => void) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-    if (typeof w.requestIdleCallback === "function") {
-      const id = w.requestIdleCallback(warm);
-      return () => w.cancelIdleCallback?.(id);
-    }
-    const id = window.setTimeout(warm, 200);
-    return () => window.clearTimeout(id);
-  }, [needsPdfThumb]);
 
   const toggleField = (field: string) => {
     setExpandedFields((prev) => {
@@ -160,18 +139,16 @@ export default function Projects({
                                     <VideoCover url={cover.url} />
                                   ) : cover.type === "pdf" ? (
                                     <div className="absolute inset-0 bg-white">
-                                      {cover.thumbUrl ? (
-                                        /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img
-                                          src={cover.thumbUrl}
-                                          alt={t}
-                                          loading="eager"
-                                          decoding="async"
-                                          className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                                        />
-                                      ) : (
-                                        <PdfThumb url={cover.url} alt={t} />
-                                      )}
+                                      {/* Embed the real PDF (first page) instead of a rendered
+                                          picture. Pointer events stay off so a click still opens
+                                          the lightbox. */}
+                                      <iframe
+                                        src={`${cover.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&page=1`}
+                                        title={t}
+                                        loading="eager"
+                                        tabIndex={-1}
+                                        className="absolute inset-0 size-full pointer-events-none"
+                                      />
                                       <span className="absolute top-3 right-3 rounded-full bg-[var(--color-orange-500)] text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 shadow">PDF</span>
                                     </div>
                                   ) : (
@@ -208,7 +185,7 @@ export default function Projects({
                                     {t}
                                   </h3>
                                   {d && (
-                                    <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
+                                    <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--color-ink-soft)] line-clamp-3">
                                       {d}
                                     </p>
                                   )}
