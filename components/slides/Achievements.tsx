@@ -8,6 +8,7 @@ import ViewMoreButton from "@/components/ViewMoreButton";
 import type { SiteContent } from "@/lib/settings";
 import { parseAchievementMedia, type AchievementMedia } from "@/lib/achievements";
 import MediaLightbox from "@/components/MediaLightbox";
+import VideoCover from "@/components/VideoCover";
 
 const HOME_PREVIEW_COUNT = 2;
 
@@ -84,14 +85,7 @@ export default function Achievements({
                 {hasMedia && cover ? (
                   <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-[var(--color-orange-50)] via-white to-[var(--color-orange-100)]/60 overflow-hidden">
                     {cover.type === "video" ? (
-                      // eslint-disable-next-line jsx-a11y/media-has-caption
-                      <video
-                        src={cover.url}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        className="absolute inset-0 size-full object-cover bg-black pointer-events-none"
-                      />
+                      <VideoCover url={cover.url} />
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img

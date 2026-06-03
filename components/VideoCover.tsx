@@ -14,10 +14,10 @@ export default function VideoCover({ url, className }: { url: string; className?
     if (seeked.current) return;
     seeked.current = true;
     const duration = Number.isFinite(video.duration) ? video.duration : 0;
-    // ~20% in, clamped to a 0.5–3s window, so we skip an opening black frame
-    // without jumping deep into the clip.
-    const base = Math.min(Math.max(duration * 0.2, 0.5), 3);
-    const target = duration > 0 ? Math.min(base, duration - 0.05) : 0.5;
+    // The first second is a dark intro on these clips, so land at least 2s in
+    // (scaling to ~20% for longer videos, capped at 5s) to show real content.
+    const base = Math.min(Math.max(duration * 0.2, 2), 5);
+    const target = duration > 0 ? Math.min(base, duration - 0.05) : 2;
     try {
       video.currentTime = target;
     } catch {
@@ -29,7 +29,7 @@ export default function VideoCover({ url, className }: { url: string; className?
     <>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
-        src={`${url}#t=0.5`}
+        src={`${url}#t=2`}
         muted
         playsInline
         preload="metadata"
