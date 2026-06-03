@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { ProjectRow } from "@/lib/schema";
@@ -10,6 +11,11 @@ import MediaLightbox from "@/components/MediaLightbox";
 import PdfThumb from "@/components/PdfThumb";
 import VideoCover from "@/components/VideoCover";
 import ViewMoreButton from "@/components/ViewMoreButton";
+
+// On the home deck we only preview the most recent couple of projects per
+// folder so an open folder stays within one screen and the "view more" CTA
+// is always visible. The full list lives on /projects.
+const HOME_PREVIEW_COUNT = 2;
 
 export default function Projects({
   lang,
@@ -92,6 +98,8 @@ export default function Projects({
             {sortedFields.map((field, fi) => {
               const fieldItems = groupedByField[field];
               const isOpen = expandedFields.has(field);
+              const previewItems = fieldItems.slice(-HOME_PREVIEW_COUNT);
+              const hiddenCount = fieldItems.length - previewItems.length;
               return (
                 <motion.div
                   key={field}
@@ -123,7 +131,7 @@ export default function Projects({
                   {isOpen && (
                     <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-[var(--color-orange-300)]/20">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {fieldItems.map((it) => {
+                        {previewItems.map((it) => {
                           const t = lang === "ar" ? it.titleAr : it.titleEn;
                           const d = lang === "ar" ? it.descAr : it.descEn;
                           const media = parseProjectMedia(it);
@@ -210,6 +218,19 @@ export default function Projects({
                           );
                         })}
                       </div>
+                      {hiddenCount > 0 && (
+                        <div className="mt-4 text-center">
+                          <Link
+                            href={`${prefix}/projects`}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-orange-600)] hover:text-[var(--color-orange-700)] transition-colors"
+                          >
+                            {lang === "ar"
+                              ? `عرض كل المشاريع (${fieldItems.length})`
+                              : `View all ${fieldItems.length} projects`}
+                            <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   )}
                 </motion.div>
