@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { AchievementRow } from "@/lib/schema";
+import ViewMoreButton from "@/components/ViewMoreButton";
 import type { SiteContent } from "@/lib/settings";
 import { parseAchievementMedia, type AchievementMedia } from "@/lib/achievements";
 import MediaLightbox from "@/components/MediaLightbox";
@@ -97,7 +97,8 @@ export default function Achievements({
                       <img
                         src={cover.url}
                         alt={t}
-                        loading="lazy"
+                        loading="eager"
+                        decoding="async"
                         className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     )}
@@ -144,13 +145,7 @@ export default function Achievements({
 
         {hasMore && (
           <div className="mt-6 md:mt-8 flex justify-center">
-            <Link
-              href={`${prefix}/achievements`}
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
-            >
-              <span>{viewMore}</span>
-              <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
-            </Link>
+            <ViewMoreButton href={`${prefix}/achievements`} label={viewMore} rtl={lang === "ar"} />
           </div>
         )}
       </div>

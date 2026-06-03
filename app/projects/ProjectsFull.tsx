@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLang } from "@/components/LangProvider";
 import type { ProjectRow } from "@/lib/schema";
@@ -35,6 +35,26 @@ export default function ProjectsFull({
     if (b === "General") return -1;
     return a.localeCompare(b);
   });
+
+  // Warm the PDF.js chunk + worker up front so thumbnails render the instant a
+  // folder is opened, instead of stalling on the first library load.
+  const needsPdfThumb = items.some((it) =>
+    parseProjectMedia(it).some((m) => m.type === "pdf" && !m.thumbUrl),
+  );
+  useEffect(() => {
+    if (!needsPdfThumb) return;
+    const warm = () => void import("@/lib/pdf-thumb").then((m) => m.warmPdfThumbnailer());
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(warm);
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(warm, 200);
+    return () => window.clearTimeout(id);
+  }, [needsPdfThumb]);
 
   const toggleField = (field: string) => {
     setExpandedFields((prev) => {
@@ -91,8 +111,8 @@ export default function ProjectsFull({
               {expandedFields.has(field) && (
                 <div className="px-4 sm:px-6 pb-5 border-t border-[var(--color-orange-300)]/20">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 pt-5">
-                    {groupedByField[field].map((it, i) => (
-                      <ProjectCard key={it.id} row={it} index={i} lang={lang} />
+                    {groupedByField[field].map((it) => (
+                      <ProjectCard key={it.id} row={it} lang={lang} />
                     ))}
                   </div>
                 </div>
@@ -107,11 +127,9 @@ export default function ProjectsFull({
 
 function ProjectCard({
   row,
-  index,
   lang,
 }: {
   row: ProjectRow;
-  index: number;
   lang: "ar" | "en";
 }) {
   const t = lang === "ar" ? row.titleAr : row.titleEn;
@@ -129,11 +147,7 @@ function ProjectCard({
 
   return (
     <>
-      <motion.article
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.5, delay: index * 0.05 }}
+      <article
         onClick={() => {
           if (hasMedia) openAt(0);
         }}
@@ -159,7 +173,8 @@ function ProjectCard({
                   <img
                     src={cover.thumbUrl}
                     alt={t}
-                    loading="lazy"
+                    loading="eager"
+                    decoding="async"
                     className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
                 ) : (
@@ -172,7 +187,8 @@ function ProjectCard({
               <img
                 src={cover.url}
                 alt={t}
-                loading="lazy"
+                loading="eager"
+                decoding="async"
                 className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
               />
             )}
@@ -251,7 +267,7 @@ function ProjectCard({
             )}
           </div>
         </div>
-      </motion.article>
+      </article>
 
       <MediaLightbox
         open={lightboxOpen}

@@ -107,7 +107,8 @@ function AchievementCard({
               <img
                 src={cover.url}
                 alt={t}
-                loading="lazy"
+                loading="eager"
+                decoding="async"
                 className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
               />
             )}

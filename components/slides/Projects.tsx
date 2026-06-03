@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { ProjectRow } from "@/lib/schema";
@@ -10,6 +9,7 @@ import { parseProjectMedia, type ProjectMedia } from "@/lib/projects";
 import MediaLightbox from "@/components/MediaLightbox";
 import PdfThumb from "@/components/PdfThumb";
 import VideoCover from "@/components/VideoCover";
+import ViewMoreButton from "@/components/ViewMoreButton";
 
 export default function Projects({
   lang,
@@ -36,6 +36,26 @@ export default function Projects({
   }, {});
 
   const sortedFields = Object.keys(groupedByField).sort((a, b) => a.localeCompare(b));
+
+  // Warm the PDF.js chunk + worker as soon as the slide mounts so the first
+  // thumbnail renders the moment a folder is opened — no library-load stall.
+  const needsPdfThumb = items.some((it) =>
+    parseProjectMedia(it).some((m) => m.type === "pdf" && !m.thumbUrl),
+  );
+  useEffect(() => {
+    if (!needsPdfThumb) return;
+    const warm = () => void import("@/lib/pdf-thumb").then((m) => m.warmPdfThumbnailer());
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(warm);
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(warm, 200);
+    return () => window.clearTimeout(id);
+  }, [needsPdfThumb]);
 
   const toggleField = (field: string) => {
     setExpandedFields((prev) => {
@@ -103,18 +123,15 @@ export default function Projects({
                   {isOpen && (
                     <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-[var(--color-orange-300)]/20">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {fieldItems.map((it, i) => {
+                        {fieldItems.map((it) => {
                           const t = lang === "ar" ? it.titleAr : it.titleEn;
                           const d = lang === "ar" ? it.descAr : it.descEn;
                           const media = parseProjectMedia(it);
                           const cover = media[0];
                           const hasMedia = Boolean(cover);
                           return (
-                            <motion.article
+                            <article
                               key={it.id}
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.35, delay: i * 0.05 }}
                               onClick={() => {
                                 if (hasMedia) setLightbox({ media, title: t });
                               }}
@@ -140,7 +157,8 @@ export default function Projects({
                                         <img
                                           src={cover.thumbUrl}
                                           alt={t}
-                                          loading="lazy"
+                                          loading="eager"
+                                          decoding="async"
                                           className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                                         />
                                       ) : (
@@ -153,7 +171,8 @@ export default function Projects({
                                     <img
                                       src={cover.url}
                                       alt={t}
-                                      loading="lazy"
+                                      loading="eager"
+                                      decoding="async"
                                       className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                                     />
                                   )}
@@ -187,7 +206,7 @@ export default function Projects({
                                   )}
                                 </div>
                               </div>
-                            </motion.article>
+                            </article>
                           );
                         })}
                       </div>
@@ -201,13 +220,7 @@ export default function Projects({
 
         {items.length > 0 && (
           <div className="mt-6 md:mt-8 flex justify-center">
-            <Link
-              href={`${prefix}/projects`}
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
-            >
-              <span>{viewMore}</span>
-              <span aria-hidden>{lang === "ar" ? "←" : "→"}</span>
-            </Link>
+            <ViewMoreButton href={`${prefix}/projects`} label={viewMore} rtl={lang === "ar"} />
           </div>
         )}
       </div>

@@ -18,6 +18,13 @@ function loadPdfJs(): Promise<PdfJsModule> {
   return pdfjsPromise;
 }
 
+// Eagerly loads the PDF.js library + worker so the first thumbnail render
+// doesn't pay the one-time import cost. Safe to call repeatedly — the
+// underlying promise is memoised.
+export function warmPdfThumbnailer(): void {
+  void loadPdfJs();
+}
+
 async function readAsArrayBuffer(input: Blob | ArrayBuffer): Promise<ArrayBuffer> {
   if (input instanceof ArrayBuffer) return input;
   return await input.arrayBuffer();

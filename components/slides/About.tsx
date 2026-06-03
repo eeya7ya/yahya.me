@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
+import ViewMoreButton from "@/components/ViewMoreButton";
 
 export default function About({ lang, content }: { lang: Lang; content: SiteContent }) {
   const a = content.about;
@@ -72,13 +72,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             transition={{ delay: 0.55, duration: 0.5 }}
             className="mt-8"
           >
-            <Link
-              href={`${prefix}/about`}
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--color-orange-500)] hover:bg-[var(--color-orange-600)] text-white text-sm font-semibold px-5 py-2.5 shadow-md transition"
-            >
-              <span>{viewMore}</span>
-              <span aria-hidden>{isRtl ? "←" : "→"}</span>
-            </Link>
+            <ViewMoreButton href={`${prefix}/about`} label={viewMore} rtl={isRtl} />
           </motion.div>
         </div>
 
