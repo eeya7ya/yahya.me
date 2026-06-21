@@ -14,7 +14,7 @@ export const dict = {
     about: {
       title: "عنّي",
       body:
-        "مهندس متخصص في حماية أنظمة القوى الكهربائية، مع تركيز على أنظمة الحماية، ثم الشبكات، ثم الأنظمة منخفضة الجهد وأتمتة المنازل. أؤمن أن المعرفة الحقيقية تُبنى بالمشاريع والتجارب، لا بالكتب فقط.",
+        "مهندس حماية أنظمة القوى الكهربائية، متخصص في تنسيق الريليهات ودراسات تيار القصر وتقييم مخاطر القوس الكهربائي، مع خبرة عملية في تصميم أنظمة الجهد المنخفض وELV على AutoCAD وRevit. تركيزي مرتّب: أنظمة الحماية أولاً، ثم الشبكات، ثم الأنظمة منخفضة الجهد وأتمتة المنازل. ومن خلال eSpark أقدّم هندسة دقيقة قائمة على المعايير تحوّل المتطلبات المعقّدة إلى أنظمة كهربائية آمنة وانتقائية وموثوقة.",
       values: ["دقة", "تصميم", "أثر"],
     },
     roadmap: { title: "خارطة الطريق", subtitle: "المحطات الكبرى في رحلتي" },
@@ -43,7 +43,7 @@ export const dict = {
     about: {
       title: "About",
       body:
-        "Power system protection engineer focused on protection systems first, then networking, then ELV & home automation. Real knowledge is built through projects and experiments, not books alone.",
+        "Power system protection engineer specializing in relay coordination, short-circuit studies, and arc-flash assessments, with hands-on LV/ELV system design in AutoCAD & Revit. My focus runs in order — protection systems first, then networking, then ELV & home automation. Through eSpark I deliver precise, standards-driven engineering that turns complex requirements into safe, selective, and reliable electrical systems.",
       values: ["Precision", "Design", "Impact"],
     },
     roadmap: { title: "Roadmap", subtitle: "Milestones along the journey" },
