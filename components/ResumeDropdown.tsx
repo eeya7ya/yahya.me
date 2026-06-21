@@ -7,10 +7,12 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
-import { resumes, resumeLabel } from "@/lib/resumes";
+import { resumeLabel, type Resume } from "@/lib/resumes";
 
 type Props = {
   lang: Lang;
+  /** Résumés to list — only those with an uploaded file are shown. */
+  resumes: Resume[];
   /** Visual weight of the trigger button. */
   variant?: "solid" | "outline";
   /** Which edge the menu aligns to. Defaults to the reading-start edge. */
@@ -18,13 +20,17 @@ type Props = {
   className?: string;
 };
 
-export default function ResumeDropdown({ lang, variant = "solid", align, className = "" }: Props) {
+export default function ResumeDropdown({ lang, resumes, variant = "solid", align, className = "" }: Props) {
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const isRtl = lang === "ar";
   const label = dict[lang].ui.downloadResume;
   const menuAlign = align ?? (isRtl ? "end" : "start");
+
+  // Only show résumés that actually have a downloadable file.
+  const available = resumes.filter((r) => r.url && r.url.trim().length > 0);
+  if (available.length === 0) return null;
 
   // Close on outside click or Escape.
   useEffect(() => {
@@ -97,12 +103,14 @@ export default function ResumeDropdown({ lang, variant = "solid", align, classNa
               menuAlign === "end" ? "end-0" : "start-0"
             }`}
           >
-            {resumes.map((r, i) => (
-              <li key={r.id} role="none">
+            {available.map((r, i) => (
+              <li key={`${r.url}-${i}`} role="none">
                 <a
                   role="menuitem"
-                  href={r.file}
+                  href={r.url}
                   download
+                  target="_blank"
+                  rel="noreferrer"
                   onClick={() => setOpen(false)}
                   className={`flex items-center justify-between gap-3 px-4 py-3 text-sm text-[var(--color-ink)] transition-colors hover:bg-[var(--color-orange-50)] hover:text-[var(--color-orange-600)] ${
                     i !== 0 ? "border-t border-[var(--color-orange-300)]/30" : ""

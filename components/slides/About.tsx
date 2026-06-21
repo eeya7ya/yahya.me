@@ -74,7 +74,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             className="mt-8 flex flex-wrap items-center gap-3"
           >
             <ViewMoreButton href={`${prefix}/about`} label={viewMore} rtl={isRtl} />
-            <ResumeDropdown lang={lang} variant="outline" />
+            <ResumeDropdown lang={lang} resumes={content.resumes} variant="outline" />
           </motion.div>
         </div>
 

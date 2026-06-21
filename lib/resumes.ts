@@ -1,37 +1,21 @@
 import type { Lang } from "./i18n";
 
-// Downloadable résumés, shown in the home + about dropdowns.
-// Order matters — it reflects the primary focus: protection first, then
+// A downloadable résumé entry. The file itself lives wherever the admin
+// upload stored it (Cloudflare R2) — we only keep the public URL + labels.
+// Managed from the admin panel ("Content" tab → "Résumés"), persisted in
+// site settings. Order reflects the primary focus: protection first, then
 // networking, then ELV & home automation.
-//
-// To wire up a résumé, drop the PDF into `public/resumes/` using the file
-// name referenced below (or update the `file` path here).
 export type Resume = {
-  id: string;
   labelEn: string;
   labelAr: string;
-  file: string; // path served from /public
+  url: string;
 };
 
-export const resumes: Resume[] = [
-  {
-    id: "protection",
-    labelEn: "Protection Systems",
-    labelAr: "أنظمة الحماية",
-    file: "/resumes/yahya-khaled-protection-systems.pdf",
-  },
-  {
-    id: "networking",
-    labelEn: "Networking",
-    labelAr: "الشبكات",
-    file: "/resumes/yahya-khaled-networking.pdf",
-  },
-  {
-    id: "elv",
-    labelEn: "ELV & Home Automation",
-    labelAr: "الأنظمة منخفضة الجهد وأتمتة المنازل",
-    file: "/resumes/yahya-khaled-elv-home-automation.pdf",
-  },
+// Seed entries shown before anything is uploaded — labels only, no files yet.
+export const defaultResumes: Resume[] = [
+  { labelEn: "Protection Systems", labelAr: "أنظمة الحماية", url: "" },
+  { labelEn: "Networking", labelAr: "الشبكات", url: "" },
+  { labelEn: "ELV & Home Automation", labelAr: "الأنظمة منخفضة الجهد وأتمتة المنازل", url: "" },
 ];
 
 export function resumeLabel(r: Resume, lang: Lang): string {

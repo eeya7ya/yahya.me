@@ -95,7 +95,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="mt-6 self-start"
         >
-          <ResumeDropdown lang={lang} variant="solid" />
+          <ResumeDropdown lang={lang} resumes={content.resumes} variant="solid" />
         </motion.div>
 
         {/* Site / handle */}

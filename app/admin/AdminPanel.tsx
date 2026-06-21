@@ -19,6 +19,7 @@ type Tab = "content" | "roadmap" | "achievements" | "projects";
 const ICON_OPTIONS = ["spark", "trophy", "bolt", "sun"] as const;
 
 type MediaItem = SiteContent["about"]["media"][number];
+type ResumeItem = SiteContent["resumes"][number];
 
 function parseMediaField(raw: string | undefined | null): MediaItem[] {
   if (!raw) return [];
@@ -187,6 +188,17 @@ function ContentEditor({
           /* eslint-disable-next-line @next/next/no-img-element */
           <img src={draft.photoUrl} alt="preview" className="mt-2 h-32 w-32 object-cover rounded-xl border border-[var(--color-orange-300)]/40" />
         )}
+      </Section>
+
+      <Section title="Résumés (download dropdown)">
+        <p className="text-xs text-[var(--color-ink-soft)]">
+          Shown as a download dropdown on the home and About sections. Order top-to-bottom is the order visitors see — keep protection first, then networking, then ELV &amp; home automation. Entries without an uploaded file are hidden on the site.
+        </p>
+        <ResumesEditor
+          items={draft.resumes}
+          onChange={(resumes) => setDraft({ ...draft, resumes })}
+          flash={flash}
+        />
       </Section>
 
       <Section title="Hero">
@@ -1066,6 +1078,162 @@ function MediaGallery({
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+/* ---------------- Résumés editor ---------------- */
+
+function ResumesEditor({
+  items,
+  onChange,
+  flash,
+}: {
+  items: ResumeItem[];
+  onChange: (items: ResumeItem[]) => void;
+  flash: (msg: string) => void;
+}) {
+  function update(i: number, patch: Partial<ResumeItem>) {
+    onChange(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+  }
+  function remove(i: number) {
+    onChange(items.filter((_, idx) => idx !== i));
+  }
+  function add() {
+    onChange([...items, { labelEn: "", labelAr: "", url: "" }]);
+  }
+  function move(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = items.slice();
+    [next[i], next[j]] = [next[j], next[i]];
+    onChange(next);
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.length === 0 && (
+        <p className="text-xs text-[var(--color-ink-soft)]">No résumés yet — add one below.</p>
+      )}
+      {items.map((r, i) => (
+        <div key={i} className="rounded-xl border border-[var(--color-orange-300)]/30 bg-white/50 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[var(--color-ink-soft)]">#{i + 1}</span>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+                className="px-2 py-0.5 rounded-full border border-[var(--color-orange-300)]/60 text-[var(--color-ink-soft)] hover:bg-[var(--color-orange-50)] disabled:opacity-40"
+                title="Move up"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                onClick={() => move(i, 1)}
+                disabled={i === items.length - 1}
+                className="px-2 py-0.5 rounded-full border border-[var(--color-orange-300)]/60 text-[var(--color-ink-soft)] hover:bg-[var(--color-orange-50)] disabled:opacity-40"
+                title="Move down"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="px-2 py-0.5 rounded-full border border-red-300 text-red-700 hover:bg-red-50 text-xs"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            <Field label="Label (AR)" value={r.labelAr} onChange={(v) => update(i, { labelAr: v })} />
+            <Field label="Label (EN)" value={r.labelEn} onChange={(v) => update(i, { labelEn: v })} />
+          </div>
+          <ResumeFileField value={r.url} onChange={(v) => update(i, { url: v })} flash={flash} />
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        className="w-full text-xs px-3 py-2 rounded-lg border border-dashed border-[var(--color-orange-300)]/40 text-[var(--color-ink-soft)] hover:bg-[var(--color-orange-50)] hover:border-[var(--color-orange-300)]/60 transition"
+      >
+        + Add résumé
+      </button>
+    </div>
+  );
+}
+
+function ResumeFileField({
+  value,
+  onChange,
+  flash,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  flash: (msg: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setBusy(true);
+    try {
+      const url = await uploadFile(f);
+      onChange(url);
+      flash("PDF uploaded");
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-xs font-medium text-[var(--color-ink-soft)]">PDF file</label>
+      <div className="mt-1 flex items-center gap-2">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="https://… or upload a PDF"
+          className="flex-1 rounded-lg border border-[var(--color-orange-300)]/50 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-orange-500)]"
+          dir="ltr"
+        />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="shrink-0 text-xs px-3 py-2 rounded-lg border border-[var(--color-orange-300)]/60 bg-white/70 hover:bg-[var(--color-orange-50)] disabled:opacity-60"
+        >
+          {busy ? "Uploading…" : "Upload"}
+        </button>
+        {value && (
+          <a
+            href={value}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 text-xs px-2 py-2 rounded-lg border border-[var(--color-orange-300)]/60 bg-white/70 hover:bg-[var(--color-orange-50)]"
+          >
+            View
+          </a>
+        )}
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="shrink-0 text-xs px-2 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50"
+          >
+            Clear
+          </button>
+        )}
+        <input ref={inputRef} type="file" accept="application/pdf,.pdf" className="hidden" onChange={onPick} />
+      </div>
     </div>
   );
 }

@@ -2,11 +2,13 @@ import { cache } from "react";
 import { ensureSchema, getDb } from "./db";
 import { siteSettings } from "./schema";
 import { dict } from "./i18n";
+import { defaultResumes, type Resume } from "./resumes";
 
 const DEFAULT_PHOTO = "/profile.png";
 
 export type SiteContent = {
   photoUrl: string;
+  resumes: Resume[];
   hero: {
     greetingAr: string; greetingEn: string;
     nameAr: string;     nameEn: string;
@@ -41,6 +43,7 @@ export type SiteContent = {
 
 export const defaultContent: SiteContent = {
   photoUrl: process.env.NEXT_PUBLIC_PHOTO_URL || DEFAULT_PHOTO,
+  resumes: [...defaultResumes],
   hero: {
     greetingAr: dict.ar.hero.greeting, greetingEn: dict.en.hero.greeting,
     nameAr: dict.ar.hero.name,         nameEn: dict.en.hero.name,
@@ -81,6 +84,7 @@ export const defaultContent: SiteContent = {
 // Each entry: [key, type] where type indicates encoding for the value.
 export const SETTING_KEYS = [
   ["photo.url", "string"],
+  ["resumes", "json"],
 
   ["hero.greeting.ar", "string"], ["hero.greeting.en", "string"],
   ["hero.name.ar", "string"],     ["hero.name.en", "string"],
@@ -114,6 +118,22 @@ function applyOverrides(base: SiteContent, map: Map<string, string>): SiteConten
   const c: SiteContent = JSON.parse(JSON.stringify(base));
 
   if (get("photo.url")) c.photoUrl = get("photo.url")!;
+
+  const vResumes = get("resumes");
+  if (vResumes) {
+    try {
+      const parsed = JSON.parse(vResumes);
+      if (Array.isArray(parsed)) {
+        c.resumes = parsed
+          .filter((r) => r && typeof r === "object")
+          .map((r) => ({
+            labelEn: typeof r.labelEn === "string" ? r.labelEn : "",
+            labelAr: typeof r.labelAr === "string" ? r.labelAr : "",
+            url: typeof r.url === "string" ? r.url : "",
+          }));
+      }
+    } catch {}
+  }
 
   c.hero.greetingAr = get("hero.greeting.ar") ?? c.hero.greetingAr;
   c.hero.greetingEn = get("hero.greeting.en") ?? c.hero.greetingEn;
@@ -164,6 +184,7 @@ function applyOverrides(base: SiteContent, map: Map<string, string>): SiteConten
 export function contentToFlat(c: SiteContent): Record<SettingKey, string> {
   return {
     "photo.url": c.photoUrl,
+    "resumes": JSON.stringify(c.resumes ?? []),
     "hero.greeting.ar": c.hero.greetingAr, "hero.greeting.en": c.hero.greetingEn,
     "hero.name.ar": c.hero.nameAr,         "hero.name.en": c.hero.nameEn,
     "hero.role.ar": c.hero.roleAr,         "hero.role.en": c.hero.roleEn,
