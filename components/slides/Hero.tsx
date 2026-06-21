@@ -5,8 +5,7 @@ import type { Lang, Dict } from "@/lib/i18n";
 import { dict } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 import ResumeDropdown from "@/components/ResumeDropdown";
-import HeroFlow from "@/components/HeroFlow";
-import HeroAmbient from "@/components/HeroAmbient";
+import HeroTech from "@/components/HeroTech";
 
 type Props = {
   lang: Lang;
@@ -30,8 +29,8 @@ export default function Hero({ lang, t, content, onNext }: Props) {
 
   return (
     <div className="absolute inset-0">
-      {/* Interactive ambient backdrop — drifting blobs + parallax, breaks the flat fill */}
-      <HeroAmbient />
+      {/* Protection-engineer themed backdrop — waveforms, grid, relay tokens */}
+      <HeroTech />
 
       {/* Photo — full-bleed background layer, sits BEHIND the orange UI */}
       <motion.div
@@ -50,9 +49,6 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           loading="eager"
         />
       </motion.div>
-
-      {/* Ambient spark flow — drifts from the photo-side corner toward the text */}
-      <HeroFlow rtl={isRtl} />
 
       {/* Orange UI — name + tagline, sits ABOVE the photo */}
       <div className="relative z-10 flex h-full flex-col justify-start md:justify-center pt-24 pb-[45%] px-6 sm:px-8 md:px-16 lg:px-24 md:py-20 md:pb-20 md:pt-20 md:max-w-[60%]">
