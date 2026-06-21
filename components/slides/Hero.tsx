@@ -6,6 +6,7 @@ import { dict } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 import ResumeDropdown from "@/components/ResumeDropdown";
 import HeroFlow from "@/components/HeroFlow";
+import HeroAmbient from "@/components/HeroAmbient";
 
 type Props = {
   lang: Lang;
@@ -29,6 +30,9 @@ export default function Hero({ lang, t, content, onNext }: Props) {
 
   return (
     <div className="absolute inset-0">
+      {/* Interactive ambient backdrop — drifting blobs + parallax, breaks the flat fill */}
+      <HeroAmbient />
+
       {/* Photo — full-bleed background layer, sits BEHIND the orange UI */}
       <motion.div
         aria-hidden
