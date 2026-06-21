@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import type { Lang, Dict } from "@/lib/i18n";
 import { dict } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
+import ResumeDropdown from "@/components/ResumeDropdown";
 
 type Props = {
   lang: Lang;
@@ -87,6 +88,16 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           </span>
         </motion.div>
 
+        {/* Résumé download dropdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="mt-6 self-start"
+        >
+          <ResumeDropdown lang={lang} variant="solid" />
+        </motion.div>
+
         {/* Site / handle */}
         <motion.a
           href="https://eSpark.dev"
@@ -94,7 +105,7 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           rel="noreferrer"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.85, duration: 0.5 }}
+          transition={{ delay: 0.9, duration: 0.5 }}
           className="mt-5 inline-flex items-center gap-2 self-start text-xs md:text-sm text-[var(--color-ink-soft)] hover:text-[var(--color-orange-600)] transition"
         >
           <span aria-hidden className="size-1.5 rounded-full bg-[var(--color-orange-500)]/70" />
@@ -116,7 +127,18 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           aria-hidden
           className="inline-flex items-center justify-center size-8 rounded-full border border-[var(--color-orange-300)]/60 bg-white/60 backdrop-blur transition-transform group-hover:translate-y-0.5 group-hover:border-[var(--color-orange-500)]"
         >
-          <span className="text-[var(--color-orange-600)]">↓</span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4 text-[var(--color-orange-600)]"
+          >
+            <path d="M12 5v14" />
+            <path d="m19 12-7 7-7-7" />
+          </svg>
         </span>
       </motion.button>
     </div>
