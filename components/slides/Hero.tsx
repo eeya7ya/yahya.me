@@ -61,7 +61,9 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="mt-3 text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold leading-[1.05] text-[var(--color-ink)]"
+          className={`mt-3 text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold text-[var(--color-ink)] ${
+            isRtl ? "leading-[1.35] pb-1" : "leading-[1.05]"
+          }`}
         >
           {name}
         </motion.h1>
