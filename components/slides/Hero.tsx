@@ -5,6 +5,7 @@ import type { Lang, Dict } from "@/lib/i18n";
 import { dict } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 import ResumeDropdown from "@/components/ResumeDropdown";
+import HeroFlow from "@/components/HeroFlow";
 
 type Props = {
   lang: Lang;
@@ -46,6 +47,9 @@ export default function Hero({ lang, t, content, onNext }: Props) {
         />
       </motion.div>
 
+      {/* Ambient spark flow — drifts from the photo-side corner toward the text */}
+      <HeroFlow rtl={isRtl} />
+
       {/* Orange UI — name + tagline, sits ABOVE the photo */}
       <div className="relative z-10 flex h-full flex-col justify-start md:justify-center pt-24 pb-[45%] px-6 sm:px-8 md:px-16 lg:px-24 md:py-20 md:pb-20 md:pt-20 md:max-w-[60%]">
         <motion.span
@@ -61,7 +65,9 @@ export default function Hero({ lang, t, content, onNext }: Props) {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="mt-3 text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold leading-[1.05] text-[var(--color-ink)]"
+          className={`mt-3 text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold text-[var(--color-ink)] ${
+            isRtl ? "leading-[1.35] pb-1" : "leading-[1.05]"
+          }`}
         >
           {name}
         </motion.h1>

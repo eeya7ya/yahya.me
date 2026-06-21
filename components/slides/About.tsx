@@ -5,6 +5,7 @@ import { dict, type Lang } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 import ViewMoreButton from "@/components/ViewMoreButton";
 import ResumeDropdown from "@/components/ResumeDropdown";
+import BurnOverlay from "@/components/BurnOverlay";
 
 export default function About({ lang, content }: { lang: Lang; content: SiteContent }) {
   const a = content.about;
@@ -86,19 +87,20 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
           className={`lg:col-span-5 ${isRtl ? "lg:order-1" : ""}`}
         >
           {media[0] ? (
-            <figure className="relative rounded-3xl overflow-hidden border border-[var(--color-orange-300)]/50 bg-white/60 shadow-[0_30px_60px_-30px_rgba(217,112,26,0.35)]">
+            <figure className="group relative rounded-3xl overflow-hidden border border-[var(--color-orange-300)]/50 bg-white/60 shadow-[0_30px_60px_-30px_rgba(217,112,26,0.35)]">
               {media[0].type === "video" ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video src={media[0].url} controls className="w-full aspect-[3/4] md:aspect-[4/5] object-cover object-top md:object-center bg-black" />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={media[0].url} alt={media[0].caption ?? ""} className="w-full aspect-[3/4] md:aspect-[4/5] object-cover object-top md:object-center" />
+                <img src={media[0].url} alt={media[0].caption ?? ""} className="w-full aspect-[3/4] md:aspect-[4/5] object-cover object-top md:object-center transition-transform duration-500 group-hover:scale-[1.03]" />
               )}
               {media[0].caption && (
-                <figcaption className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/55 to-transparent text-sm text-white">
+                <figcaption className="absolute inset-x-0 bottom-0 z-20 p-4 bg-gradient-to-t from-black/55 to-transparent text-sm text-white">
                   {media[0].caption}
                 </figcaption>
               )}
+              <BurnOverlay />
             </figure>
           ) : (
             <div className="relative aspect-[16/10] md:aspect-[4/5] rounded-3xl border border-[var(--color-orange-300)]/40 bg-gradient-to-br from-[var(--color-orange-50)] via-white/60 to-[var(--color-orange-100)]/60 backdrop-blur-sm overflow-hidden">

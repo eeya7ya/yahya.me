@@ -46,3 +46,33 @@ html[dir="ltr"] body {
     var(--color-cream);
 }
 
+/* Burn-on-hover: a warm ember glow that ignites from the bottom of a
+   framed photo, with a few rising sparks. Subtle by design. */
+@keyframes burn-flicker {
+  0%, 100% { opacity: 0.8; }
+  45% { opacity: 1; }
+  70% { opacity: 0.88; }
+}
+@keyframes ember-rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  12%  { opacity: 1; }
+  85%  { opacity: 0.7; }
+  100% { transform: translateY(-150px) translateX(var(--ember-drift, 0)) scale(0.35); opacity: 0; }
+}
+.burn-flicker { animation: burn-flicker 1.6s ease-in-out infinite; }
+.ember {
+  position: absolute;
+  bottom: 6%;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #ffe2b8 0%, #f08a2b 55%, rgba(240,138,43,0) 72%);
+  animation: ember-rise 2.8s ease-in infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burn-flicker { animation: none; }
+  .ember { animation: none; opacity: 0; }
+}
+
+
