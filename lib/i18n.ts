@@ -6,15 +6,15 @@ export const dict = {
     hero: {
       greeting: "مرحباً، أنا",
       name: "يحيى خالد",
-      role: "مهندس قوى وآلات كهربائية",
-      tagline: "ذكاء اصطناعي · تصميم كهربائي · تقنيات تعليمية",
+      role: "مهندس حماية أنظمة القوى الكهربائية",
+      tagline: "حماية أنظمة القوى · الشبكات · الأنظمة منخفضة الجهد وأتمتة المنازل",
       site: "eSpark.dev",
       cta: "اعرف المزيد",
     },
     about: {
       title: "عنّي",
       body:
-        "مهندس قوى كهربائية شغوف بأنظمة الطاقة المتجددة والشبكات الذكية. أؤمن أن المعرفة الحقيقية تُبنى بالمشاريع والتجارب، لا بالكتب فقط.",
+        "مهندس متخصص في حماية أنظمة القوى الكهربائية، مع تركيز على أنظمة الحماية، ثم الشبكات، ثم الأنظمة منخفضة الجهد وأتمتة المنازل. أؤمن أن المعرفة الحقيقية تُبنى بالمشاريع والتجارب، لا بالكتب فقط.",
       values: ["دقة", "تصميم", "أثر"],
     },
     roadmap: { title: "خارطة الطريق", subtitle: "المحطات الكبرى في رحلتي" },
@@ -28,22 +28,22 @@ export const dict = {
       linkedin: "لينكد‑إن",
       website: "الموقع",
     },
-    ui: { switchLang: "EN", scrollHint: "مرّر للأسفل", viewMore: "اعرف المزيد" },
+    ui: { switchLang: "EN", scrollHint: "مرّر للأسفل", viewMore: "اعرف المزيد", downloadResume: "تحميل السيرة الذاتية" },
   },
   en: {
     nav: { home: "Home", about: "About", roadmap: "Roadmap", achievements: "Achievements", projects: "Projects", contact: "Contact" },
     hero: {
       greeting: "Hello, I'm",
       name: "Yahya Khaled",
-      role: "Electrical Power & Machines Engineer",
-      tagline: "AI Solutions · Electrical Design · EdTech",
+      role: "Power System Protection Engineer",
+      tagline: "Protection Systems · Networking · ELV & Home Automation",
       site: "eSpark.dev",
       cta: "Learn more",
     },
     about: {
       title: "About",
       body:
-        "Electrical power engineer with a passion for renewable energy and smart grids. Real knowledge is built through projects and experiments, not books alone.",
+        "Power system protection engineer focused on protection systems first, then networking, then ELV & home automation. Real knowledge is built through projects and experiments, not books alone.",
       values: ["Precision", "Design", "Impact"],
     },
     roadmap: { title: "Roadmap", subtitle: "Milestones along the journey" },
@@ -57,7 +57,7 @@ export const dict = {
       linkedin: "LinkedIn",
       website: "Website",
     },
-    ui: { switchLang: "ع", scrollHint: "Scroll", viewMore: "View more" },
+    ui: { switchLang: "ع", scrollHint: "Scroll", viewMore: "View more", downloadResume: "Download résumé" },
   },
 } as const;
 

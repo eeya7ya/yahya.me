@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { dict, type Lang } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/settings";
 import ViewMoreButton from "@/components/ViewMoreButton";
+import ResumeDropdown from "@/components/ResumeDropdown";
 
 export default function About({ lang, content }: { lang: Lang; content: SiteContent }) {
   const a = content.about;
@@ -70,9 +71,10 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.5 }}
-            className="mt-8"
+            className="mt-8 flex flex-wrap items-center gap-3"
           >
             <ViewMoreButton href={`${prefix}/about`} label={viewMore} rtl={isRtl} />
+            <ResumeDropdown lang={lang} resumes={content.resumes} variant="outline" />
           </motion.div>
         </div>
 
@@ -106,7 +108,7 @@ export default function About({ lang, content }: { lang: Lang; content: SiteCont
                     {isRtl ? "ملخص سريع" : "At a glance"}
                   </span>
                   <span className="mt-3 block text-4xl md:text-5xl font-bold text-[var(--color-ink)]">
-                    {isRtl ? "هندسة · ذكاء · أثر" : "Engineer · AI · Impact"}
+                    {isRtl ? "هندسة · حماية · أثر" : "Engineer · Protection · Impact"}
                   </span>
                 </div>
               </div>

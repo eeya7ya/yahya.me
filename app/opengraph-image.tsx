@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Yahya Khaled — Electrical Power & Machines Engineer";
+export const alt = "Yahya Khaled — Power System Protection Engineer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -61,7 +61,7 @@ export default async function OpengraphImage() {
             Yahya Khaled
           </span>
           <span style={{ fontSize: 44, fontWeight: 500, color: "#5C3A1F", marginTop: 12 }}>
-            Electrical Power &amp; Machines Engineer
+            Power System Protection Engineer
           </span>
         </div>
 
@@ -77,7 +77,7 @@ export default async function OpengraphImage() {
               fontWeight: 600,
             }}
           >
-            AI Solutions · Electrical Design · EdTech
+            Protection Systems · Networking · ELV &amp; Home Automation
           </span>
         </div>
       </div>
